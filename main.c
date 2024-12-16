@@ -6,5 +6,5 @@ int main(int argc, char** argv){
     Window root;
     init_mgr(&display, &root); 
     //run the program
-    mgr_event_loop();
+    mgr_event_loop(display, root);
 }
