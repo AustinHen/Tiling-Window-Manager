@@ -1,4 +1,5 @@
 #include "mgr.h"
+#include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <X11/Xlib.h>
@@ -17,11 +18,26 @@ int init_mgr(Display** display, Window* root){
 
 void mgr_event_loop(Display* display, Window root){
     XSelectInput(display, root, SubstructureRedirectMask | SubstructureNotifyMask); 
-    //It seems the standard for event loops is for(;;). 
-    //This is because while(1) does 1==1 and for(;;) doesnt do any comarison. How cool
-    //I saved like three lines of assembly per loop
-    for(;;){ 
+    //sets up WorkSpaces : NOTE there is only one for now 
+    const int NUM_WORKSPACES = 1;
+    assert(NUM_WORKSPACES > 0 && NUM_WORKSPACES <= 10);
 
+    struct WorkSpace WorkSpaces[NUM_WORKSPACES];
+    int cur_workspace = 0; 
+
+    //event loop
+    XEvent curEvent;
+    for(;;){ 
+        //grabs nex event
+        XNextEvent(display, &curEvent);
+
+        //event handler
+        switch(curEvent.type){
+            
+            default:
+                //unhandled event
+                break;
+        }
     }
 }
 
@@ -31,3 +47,6 @@ void mgr_error_handler(){
     fflush(stdout); //ensures the error message is visible
     exit(1); //exits with error
 }
+
+
+
