@@ -16,6 +16,13 @@ int init_mgr(Display** display, Window* root){
         
 }
 
+//logs error and exits
+void mgr_error_handler(){
+    printf("error");     
+    fflush(stdout); //ensures the error message is visible
+    exit(1); //exits with error
+}
+
 void mgr_event_loop(Display* display, Window root){
     XSelectInput(display, root, SubstructureRedirectMask | SubstructureNotifyMask); 
     //sets up WorkSpaces : NOTE there is only one for now 
@@ -33,7 +40,21 @@ void mgr_event_loop(Display* display, Window root){
 
         //event handler
         switch(curEvent.type){
+            case CreateNotify:
+                //we dont care 
+                break;
+
+            case ConfigureRequest:
+                //a window init's its size shape and other thing 
+                //we will copy most things but when the window acutally gets displayed we will force it to be tiling
+                handleConfigureRequest(display, root, &curEvent);
+                break;
             
+            case MapRequest:
+                //request to make the window visible
+                handleMapRequest(display, root, &curEvent);
+                break;
+
             default:
                 //unhandled event
                 break;
@@ -41,11 +62,15 @@ void mgr_event_loop(Display* display, Window root){
     }
 }
 
-//logs error and exits
-void mgr_error_handler(){
-    printf("error");     
-    fflush(stdout); //ensures the error message is visible
-    exit(1); //exits with error
+//event handlers below
+void handleConfigureRequest(Display* display, Window root, XConfigureRequestEvent& event){
+     
+
+}
+
+void handleMapRequest(Display* display, Window root, XMapRequestEvent& event){
+     
+
 }
 
 

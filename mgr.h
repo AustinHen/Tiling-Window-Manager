@@ -3,15 +3,21 @@
  
 //a workspace is just a glorified root
 struct WorkSpace{
-    Window* root_;
+    Window* root;
     int* sizesX; // array of window sizes for x
     int* sizesY; // window sizes for y
     int width; // # windows across
     int height; // # windows up/down
-    int * windows; // flattened 2d array that denotes where windows should be on the screen
-
+    WindowFrame * windows; //windows in the workstation 
 };
 
+//handler for windows
+struct WindowFrame{
+    Window* frame;
+    //denotes the indexes in the workspace grid where the window lies
+    int rangeX[2]; //rangeX[0] < rangeX[1]
+    int rangeY[2]; 
+}
 
 int init_mgr(Display** display, Window* root);
 void mgr_event_loop();
