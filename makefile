@@ -2,12 +2,13 @@ CC = gcc
 CFLAGS = -Wall -g
 LDFLAGS = -lX11
 TARGET = twm
-SRCS = main.c mgr.c
+SRCS = main.c mgr.c workSpaceUtils.c
 OBJS = $(SRCS:.c=.o)
+HEADERS = mgr.h
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
+$(TARGET): $(HEADERS) $(OBJS)
 	$(CC) $(OBJS) -o $(TARGET) $(LDFLAGS)
 
 %.o: %.c

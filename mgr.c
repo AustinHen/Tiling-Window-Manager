@@ -25,12 +25,20 @@ void mgr_error_handler(){
 
 void mgr_event_loop(Display* display, Window root){
     XSelectInput(display, root, SubstructureRedirectMask | SubstructureNotifyMask); 
-    //sets up WorkSpaces : NOTE there is only one for now 
+    //sets up WorkSpaces 
     const int NUM_WORKSPACES = 1;
     assert(NUM_WORKSPACES > 0 && NUM_WORKSPACES <= 10);
 
     struct WorkSpace WorkSpaces[NUM_WORKSPACES];
     int cur_workspace = 0; 
+
+    //inits all workspaces
+    for(int i=0; i<NUM_WORKSPACES; i++){
+        init_workspace(&WorkSpaces[i], display, root);
+    }
+
+    //makes cur_workspace visible
+    XMapWindow(display, (WorkSpaces[cur_workspace].root));
 
     //event loop
     XEvent curEvent;
@@ -47,12 +55,12 @@ void mgr_event_loop(Display* display, Window root){
             case ConfigureRequest:
                 //a window init's its size shape and other thing 
                 //we will copy most things but when the window acutally gets displayed we will force it to be tiling
-                handleConfigureRequest(display, root, &curEvent);
+                handleConfigureRequest(display, root, curEvent.xconfigurerequest);
                 break;
             
             case MapRequest:
                 //request to make the window visible
-                handleMapRequest(display, root, &curEvent);
+                handleMapRequest(display, root, curEvent.xmaprequest);
                 break;
 
             default:
@@ -63,12 +71,12 @@ void mgr_event_loop(Display* display, Window root){
 }
 
 //event handlers below
-void handleConfigureRequest(Display* display, Window root, XConfigureRequestEvent& event){
+void handleConfigureRequest(Display* display, Window root, XConfigureRequestEvent event){
      
 
 }
 
-void handleMapRequest(Display* display, Window root, XMapRequestEvent& event){
+void handleMapRequest(Display* display, Window root, XMapRequestEvent event){
      
 
 }
