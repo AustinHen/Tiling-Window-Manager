@@ -40,3 +40,4 @@ void frame_window(struct WindowFrame* frame, struct WorkSpace* workspace, Window
 int get_window_size_px(struct sizes* s, int indexs[2]);
 int get_index_sizes(struct sizes* cur, int index);
 void split_node_indexes_adj(struct WindowFrame* head, struct WindowFrame* doNotUpdate, int index, int direction);
+void split_cur_node(int splitRange[2], int splitDir, struct sizes* sizesToUpdate, struct WorkSpace* workspace, struct WindowFrame* cur_frame, struct WindowFrame* to_add_frame);

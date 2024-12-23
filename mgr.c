@@ -77,7 +77,7 @@ void handleConfigureRequest(Display* display, Window root, XConfigureRequestEven
 }
 
 void handleMapRequest(Display* display, Window root, XMapRequestEvent event){
-     
+    add_window_to_workspace(workspace, display, to_add, cur_frame);
 
 }
 

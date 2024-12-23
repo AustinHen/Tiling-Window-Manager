@@ -66,42 +66,12 @@ void add_window_to_workspace(struct WorkSpace* workspace, Display* display, Wind
     int *splitRange = splitDir ? cur_frame->rangeX : cur_frame->rangeY;
     struct sizes *sizesToUpdate = splitDir ? workspace->sizesX : workspace->sizesY;
 
-    //if the size is odd we have to split the middle node
+    //splits the cur node 
     int half = (splitRange[1] - splitRange[0]) / 2;
-    if((splitRange[1] - splitRange[0]) % 2 == 1){
-        //split middle node 
-        //sizes update -> add an index to take half of the nodes 
-        int middleNode = half + 1;
-        struct sizes* cur = sizesToUpdate;
-        int i = 0;
-        while(cur != NULL && i++ < middleNode)
-            cur = cur->next; 
-        //cur = middle node
-        struct sizes* splitNode = malloc(sizeof(struct sizes));
-        splitNode->val = cur->val / 2;
-        cur->val -= splitNode->val; // not div by 2 to prevent pixel los
-        splitNode->next = cur->next;
-        cur->next = splitNode;
+    split_cur_node(splitRange, splitDir, sizesToUpdate, workspace, cur_frame, to_add_frame);
 
-        //update the nodes indexes 
-        split_node_indexes_adj(workspace->windows, cur_frame, middleNode, splitDir);
-
-    }
-
-    //cuts cur window in half, giving the rest to the new node
-    if(splitDir){
-        //splitDir = X
-        to_add_frame->rangeX[0] = half;
-        to_add_frame->rangeX[1] = splitRange[1];
-
-    }else{
-        //splitDir = Y
-        to_add_frame->rangeY[0] = half;
-        to_add_frame->rangeY[1] = splitRange[1];
-    }
-    splitRange[1] = half;
-
-    //re updates split node 
+   //re updates split node 
+    /*
     XWindowChanges changes;
     changes.x = curFrame->; //just the same x and y
     changes.y = curFrame->;
@@ -113,7 +83,7 @@ void add_window_to_workspace(struct WorkSpace* workspace, Display* display, Wind
     XConfigureWindow(display_, frame, e.value_mask, &changes); 
     //frame new window
     frame_window(to_add_frame, workspace, to_add, display);
-
+    */
     //adds new window to workstation's lists
     to_add_frame->next = workspace->windows;
     workspace->windows = to_add_frame;
@@ -195,4 +165,41 @@ void split_node_indexes_adj(struct WindowFrame* head, struct WindowFrame* doNotU
         } 
 
     } 
+}
+
+
+void split_cur_node(int splitRange[2], int splitDir, struct sizes* sizesToUpdate, struct WorkSpace* workspace, struct WindowFrame* cur_frame, struct WindowFrame* to_add_frame){
+    int half = (splitRange[1] - splitRange[0]) / 2;
+    if((splitRange[1] - splitRange[0]) % 2 == 1){
+        //split middle node 
+        //sizes update -> add an index to take half of the nodes 
+        int middleNode = half + 1;
+        struct sizes* cur = sizesToUpdate;
+        int i = 0;
+        while(cur != NULL && i++ < middleNode)
+            cur = cur->next; 
+        //cur = middle node
+        struct sizes* splitNode = malloc(sizeof(struct sizes));
+        splitNode->val = cur->val / 2;
+        cur->val -= splitNode->val; // not div by 2 to prevent pixel los
+        splitNode->next = cur->next;
+        cur->next = splitNode;
+
+        //update the nodes indexes 
+        split_node_indexes_adj(workspace->windows, cur_frame, middleNode, splitDir);
+
+    }
+
+    //cuts cur window in half, giving the rest to the new node
+    if(splitDir){
+        //splitDir = X
+        to_add_frame->rangeX[0] = half;
+        to_add_frame->rangeX[1] = splitRange[1];
+
+    }else{
+        //splitDir = Y
+        to_add_frame->rangeY[0] = half;
+        to_add_frame->rangeY[1] = splitRange[1];
+    }
+    splitRange[1] = half;
 }
