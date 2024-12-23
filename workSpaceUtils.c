@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <X11/Xlib.h>
 #define DEFAULT_WINDOW_COLOR 0xF48FB1
+#define DEFAULT_FRAME_COLOR 0xF48FB1
 //sets up workspace 
 void init_workspace(struct WorkSpace* workspace, Display* display, Window root){
     //grabs the screen's atributes
@@ -15,6 +16,7 @@ void init_workspace(struct WorkSpace* workspace, Display* display, Window root){
     workspace->width = 0; //no windows so the width is 0 
     workspace->height = 0; 
 
+    //TODO find a better way of doing this 
     struct sizes* x1 = malloc(sizeof(struct sizes));
     struct sizes* x2 = malloc(sizeof(struct sizes));
     struct sizes* y1 = malloc(sizeof(struct sizes));
@@ -47,9 +49,9 @@ void init_workspace(struct WorkSpace* workspace, Display* display, Window root){
 }
 
 //rule: split cur index(passed in through indexX and Y) along the longest edge 
-void add_window_to_workspace(struct WorkSpace* workspace, Display* display, Window to_add, struct WindowFrame* cur){
+void add_window_to_workspace(struct WorkSpace* workspace, Display* display, Window to_add, struct WindowFrame* cur_frame){
     //if first window can skip most of this
-    if(cur == NULL){
+    if(cur_frame == NULL){
         //add_first_window();
         return;
     }
@@ -57,16 +59,17 @@ void add_window_to_workspace(struct WorkSpace* workspace, Display* display, Wind
     struct WindowFrame* to_add_frame = malloc(sizeof(struct WindowFrame));
 
     //figure out split direction
-    int sizePxX = get_window_size_px(workspace->sizesX, cur->rangeX);
-    int sizePxY = get_window_size_px(workspace->sizesY, cur->rangeY);
+    int sizePxX = get_window_size_px(workspace->sizesX, cur_frame->rangeX);
+    int sizePxY = get_window_size_px(workspace->sizesY, cur_frame->rangeY);
     //0 means split along x, 1 means split across y
     int splitDir = sizePxX > sizePxY ? 1 : 0;
-    int *splitRange = splitDir ? cur->rangeX : cur->rangeY;
+    int *splitRange = splitDir ? cur_frame->rangeX : cur_frame->rangeY;
     struct sizes *sizesToUpdate = splitDir ? workspace->sizesX : workspace->sizesY;
 
     //if the size is odd we have to split the middle node
     int half = (splitRange[1] - splitRange[0]) / 2;
     if((splitRange[1] - splitRange[0]) % 2 == 1){
+        //split middle node 
         //sizes update -> add an index to take half of the nodes 
         int middleNode = half + 1;
         struct sizes* cur = sizesToUpdate;
@@ -79,7 +82,10 @@ void add_window_to_workspace(struct WorkSpace* workspace, Display* display, Wind
         cur->val -= splitNode->val; // not div by 2 to prevent pixel los
         splitNode->next = cur->next;
         cur->next = splitNode;
+
         //update the nodes indexes 
+        split_node_indexes_adj(workspace->windows, cur_frame, middleNode, splitDir);
+
     }
 
     //cuts cur window in half, giving the rest to the new node
@@ -95,21 +101,62 @@ void add_window_to_workspace(struct WorkSpace* workspace, Display* display, Wind
     }
     splitRange[1] = half;
 
-    //re render split node 
+    //re updates split node 
+    XWindowChanges changes;
+    changes.x = curFrame->; //just the same x and y
+    changes.y = curFrame->;
+    changes.height = ; //dif height / width depending on split dir NOTE they cant be 0 so if they are just set tot 1
+    changes.width = ;
+    changes.border_width = ; //same
+    changes.sibling = ; 
+    changes.stack_mode = ; //who cares -> tiling means non stacking so this doesnt matter
+    XConfigureWindow(display_, frame, e.value_mask, &changes); 
     //frame new window
-    frame_window(to_add_frame, to_add);
+    frame_window(to_add_frame, workspace, to_add, display);
 
+    //adds new window to workstation's lists
+    to_add_frame->next = workspace->windows;
+    workspace->windows = to_add_frame;
+ 
 }
 
-void frame_window(struct WindowFrame* frame, Window to_add){
+void frame_window(struct WindowFrame* frame, struct WorkSpace* workspace, Window to_add, Display* display){
+    int x = get_index_sizes(workspace->sizesX, frame->rangeX[0]); //just the first value of range
+    int y = get_index_sizes(workspace->sizesY, frame->rangeY[0]);
+    int width = get_window_size_px(workspace->sizesX, frame->rangeX);
+    int height = get_window_size_px(workspace->sizesY, frame->rangeY);
 
+    frame->frame = XCreateSimpleWindow(
+            display,
+            workspace->root,
+            x,
+            y,
+            width,
+            height,
+            10,
+            DEFAULT_FRAME_COLOR, //border color
+            DEFAULT_FRAME_COLOR);
+
+    XSelectInput(
+            display,
+            frame->frame,
+            SubstructureRedirectMask | SubstructureNotifyMask);
+  
+    //puts the window in the frame 
+    XReparentWindow(
+            display,
+            to_add,
+            frame->frame,
+            0, 0);  
+
+    XMapWindow(display, frame->frame); //NOTE this will not display until the parent is displayed
 }
 
 int get_window_size_px(struct sizes* s, int indexs[2]){
     return get_index_sizes(s, indexs[1]) - get_index_sizes(s, indexs[0]);
 }
 
-//returns val OR -1 if not found 
+//translates a size index to a pixel value (ex index 0 would translate to 0px) returns -1 on failure
 int get_index_sizes(struct sizes* cur, int index){
     int cur_index = 0; 
     while(cur != NULL && cur_index < index){
@@ -121,4 +168,31 @@ int get_index_sizes(struct sizes* cur, int index){
         return -1; 
 
     return cur->val;
+}
+
+
+//updates the indexes of all frames to account for split node 
+void split_node_indexes_adj(struct WindowFrame* head, struct WindowFrame* doNotUpdate, int index, int direction){
+    //RULE: if index less than do nothing else update
+    struct WindowFrame* cur = head;
+    if(direction){
+        //need to update x
+        while(cur != NULL){
+            if(cur != doNotUpdate){
+                cur->rangeX[0] = cur->rangeX[0] >= index ? cur->rangeX[0]+1 : cur->rangeX[0];
+                cur->rangeX[1] = cur->rangeX[1] >= index ? cur->rangeX[1]+1 : cur->rangeX[1];
+            }
+            cur = cur->next;
+        } 
+    }else{
+        //need to update y
+        while(cur != NULL){
+            if(cur != doNotUpdate){
+                cur->rangeY[0] = cur->rangeY[0] >= index ? cur->rangeY[0]+1 : cur->rangeY[0];
+                cur->rangeY[1] = cur->rangeY[1] >= index ? cur->rangeY[1]+1 : cur->rangeY[1];
+            }
+            cur = cur->next;
+        } 
+
+    } 
 }

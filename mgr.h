@@ -14,7 +14,7 @@ struct WorkSpace{
 
 //handler for windows
 struct WindowFrame{
-    Window* frame;
+    Window frame;
     struct WindowFrame* next; //so it can be a linked list
     //denotes the indexes in the workspace grid where the window lies
     int rangeX[2]; //rangeX[0] < rangeX[1]
@@ -36,5 +36,7 @@ void handleMapRequest(Display* display, Window root, XMapRequestEvent event);
 
 //workSpaceUtils.c
 void init_workspace(struct WorkSpace* workspace, Display* display, Window root);
+void frame_window(struct WindowFrame* frame, struct WorkSpace* workspace, Window to_add, Display* display);
 int get_window_size_px(struct sizes* s, int indexs[2]);
 int get_index_sizes(struct sizes* cur, int index);
+void split_node_indexes_adj(struct WindowFrame* head, struct WindowFrame* doNotUpdate, int index, int direction);
