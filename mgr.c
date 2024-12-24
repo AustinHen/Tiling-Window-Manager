@@ -30,7 +30,7 @@ void mgr_event_loop(Display* display, Window root){
     assert(NUM_WORKSPACES > 0 && NUM_WORKSPACES <= 10);
 
     struct WorkSpace WorkSpaces[NUM_WORKSPACES];
-    int cur_workspace = 0; 
+    int cur_workspace_index = 0; 
 
     //inits all workspaces
     for(int i=0; i<NUM_WORKSPACES; i++){
@@ -38,7 +38,7 @@ void mgr_event_loop(Display* display, Window root){
     }
 
     //makes cur_workspace visible
-    XMapWindow(display, (WorkSpaces[cur_workspace].root));
+    XMapWindow(display, (WorkSpaces[cur_workspace_index].root));
 
     //event loop
     XEvent curEvent;
@@ -60,7 +60,7 @@ void mgr_event_loop(Display* display, Window root){
             
             case MapRequest:
                 //request to make the window visible
-                handleMapRequest(display, root, curEvent.xmaprequest);
+                handleMapRequest(display, &WorkSpaces[cur_workspace_index], curEvent.xmaprequest);
                 break;
 
             default:
@@ -76,9 +76,10 @@ void handleConfigureRequest(Display* display, Window root, XConfigureRequestEven
 
 }
 
-void handleMapRequest(Display* display, Window root, XMapRequestEvent event){
-    add_window_to_workspace(workspace, display, to_add, cur_frame);
+void handleMapRequest(Display* display, struct WorkSpace* workspace, XMapRequestEvent event){
+    //add_window_to_workspace(workspace, display, to_add, cur_frame);
 
+    add_first_window(workspace, display, event.window);
 }
 
 

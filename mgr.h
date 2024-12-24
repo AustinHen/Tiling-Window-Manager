@@ -32,10 +32,11 @@ int init_mgr(Display** display, Window* root);
 void mgr_event_loop();
 void mgr_error_handler();
 void handleConfigureRequest(Display* display, Window root, XConfigureRequestEvent event);
-void handleMapRequest(Display* display, Window root, XMapRequestEvent event);
+void handleMapRequest(Display* display, struct WorkSpace* workspace, XMapRequestEvent event);
 
 //workSpaceUtils.c
 void init_workspace(struct WorkSpace* workspace, Display* display, Window root);
+void add_first_window(struct WorkSpace* workspace, Display* display, Window to_add);
 void frame_window(struct WindowFrame* frame, struct WorkSpace* workspace, Window to_add, Display* display);
 int get_window_size_px(struct sizes* s, int indexs[2]);
 int get_index_sizes(struct sizes* cur, int index);

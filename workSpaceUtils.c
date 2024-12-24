@@ -52,7 +52,7 @@ void init_workspace(struct WorkSpace* workspace, Display* display, Window root){
 void add_window_to_workspace(struct WorkSpace* workspace, Display* display, Window to_add, struct WindowFrame* cur_frame){
     //if first window can skip most of this
     if(cur_frame == NULL){
-        //add_first_window();
+        add_first_window(workspace, display, to_add);
         return;
     }
 
@@ -88,6 +88,16 @@ void add_window_to_workspace(struct WorkSpace* workspace, Display* display, Wind
     to_add_frame->next = workspace->windows;
     workspace->windows = to_add_frame;
  
+}
+
+void add_first_window(struct WorkSpace* workspace, Display* display, Window to_add){
+    struct WindowFrame* to_add_frame = malloc(sizeof(struct WindowFrame));
+    frame_window(to_add_frame, workspace, to_add, display);
+    
+    //adds new window to workstation's lists
+    to_add_frame->next = workspace->windows;
+    workspace->windows = to_add_frame;
+
 }
 
 void frame_window(struct WindowFrame* frame, struct WorkSpace* workspace, Window to_add, Display* display){
