@@ -1,24 +1,33 @@
 #include <X11/Xlib.h>
 #include <stdlib.h>
  
+struct LogicMaster{
+    struct LogicAgent* root;
+    int min_cord[2];
+    int max_cord[2];
+};
+
+struct LogicAgent{
+    int start_cord[2];
+    int end_cord[2];
+    int split_dir;
+    struct LogicAgent* left;
+    struct LogicAgent* right;
+    struct LogicAgent* parent;
+};
+
 //a workspace is just a glorified root
 struct WorkSpace{
     Window root;
-    struct sizes* sizesX; // array of window sizes for x
-    struct sizes* sizesY; // window sizes for y
-    int width; // # windows across
-    int height; // # windows up/down
-    int numWindows; // # windows
+    struct LogicMaster* logic_master;
     struct WindowFrame* windows; //linked list of windows 
 };
 
 //handler for windows
 struct WindowFrame{
     Window frame;
+    struct LogicAgent* la;
     struct WindowFrame* next; //so it can be a linked list
-    //denotes the indexes in the workspace grid where the window lies
-    int rangeX[2]; //rangeX[0] < rangeX[1]
-    int rangeY[2]; 
 };
 
 //linked list for the sizes
@@ -26,6 +35,17 @@ struct sizes{
     int val;
     struct sizes* next;
 };
+
+
+void logic_test();
+
+struct LogicAgent* logic_add(struct LogicMaster* ws, struct LogicAgent* cur_focus);
+struct LogicAgent* get_default_cur_focus(struct LogicMaster* ws);
+void logic_split(struct LogicMaster* ws, struct LogicAgent* to_split, struct LogicAgent* to_add);
+int get_split_dir(struct LogicAgent* cur_focus);
+int get_depth(struct LogicAgent* cur_focus);
+void logic_remove_leaf(struct LogicMaster* ws, struct LogicAgent* to_delete);
+void distribute_space(struct LogicAgent* root, int size, int shift, int dir);
 
 //mgr.c
 int init_mgr(Display** display, Window* root);

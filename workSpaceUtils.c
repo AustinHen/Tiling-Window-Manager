@@ -5,31 +5,24 @@
 #include <X11/Xlib.h>
 #define DEFAULT_WINDOW_COLOR 0xF48FB1
 #define DEFAULT_FRAME_COLOR 0xF48FB1
+/*
+pipe: add request -> add logic agent -> frames it -> couples frame and logic agent -> displays it
+TODO:
+    - update workspace struct / init_workspace
+    - rewrite frame function
+    - update add function (kinda just rewrite it)
+    - create delete function
+logicTests.c
+
+*/
 //sets up workspace 
 void init_workspace(struct WorkSpace* workspace, Display* display, Window root){
     //grabs the screen's atributes
     XWindowAttributes screenAttributes; 
     XGetWindowAttributes(display, root, &screenAttributes);
-
-    //sets up workspace's fields (all empty) 
-    workspace->numWindows = 0;
-    workspace->width = 0; //no windows so the width is 0 
-    workspace->height = 0; 
-
-    //TODO find a better way of doing this 
-    struct sizes* x1 = malloc(sizeof(struct sizes));
-    struct sizes* x2 = malloc(sizeof(struct sizes));
-    struct sizes* y1 = malloc(sizeof(struct sizes));
-    struct sizes* y2 = malloc(sizeof(struct sizes));
-
-    x1->val = 0;
-    x1->next = x2;
-    x2->val = screenAttributes.width;
-
-    y1->val = 0;
-    y1->next = y2;
-    y2->val = screenAttributes.height;
-
+    
+    //creates 
+    
     //sets up workspace root
     workspace->root = XCreateSimpleWindow(
             display,
