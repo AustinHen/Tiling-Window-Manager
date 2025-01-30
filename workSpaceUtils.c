@@ -50,14 +50,17 @@ void init_workspace(struct WorkSpace* workspace, Display* display, Window root){
 
 //rule: split cur index(passed in through indexX and Y) along the longest edge 
 void add_window_to_workspace(struct WorkSpace* workspace, Display* display, Window to_add, struct WindowFrame* cur_frame){
- 
+    struct WindowFrame* to_add_frame = (struct WindowFrame*) malloc(sizeof(struct WindowFrame));
+    to_add_frame->la = logic_add(workspace->logic_master, cur_frame->la);
+    frame_window(to_add_frame, workspace, to_add, display);
+    //TODO update all edited children 
 }
 
 void frame_window(struct WindowFrame* frame, struct WorkSpace* workspace, Window to_add, Display* display){
-    int x = get_index_sizes(workspace->sizesX, frame->rangeX[0]); //just the first value of range
-    int y = get_index_sizes(workspace->sizesY, frame->rangeY[0]);
-    int width = get_window_size_px(workspace->sizesX, frame->rangeX);
-    int height = get_window_size_px(workspace->sizesY, frame->rangeY);
+    int x = frame->la->start_cord[0];
+    int y = frame->la->start_cord[1];
+    int width = frame->la->end_cord[0] - frame->la->start_cord[0]; 
+    int height = frame->la->end_cord[1] - frame->la->start_cord[1]; 
 
     frame->frame = XCreateSimpleWindow(
             display,
