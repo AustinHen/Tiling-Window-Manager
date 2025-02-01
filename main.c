@@ -1,6 +1,7 @@
 #include "mgr.h"
 
 int main(int argc, char** argv){
+    logic_test();
     //set up the manager
     Display* display;
     Window root;

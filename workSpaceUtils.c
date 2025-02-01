@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <X11/Xlib.h>
 #define DEFAULT_WINDOW_COLOR 0xF48FB1
-#define DEFAULT_FRAME_COLOR 0xF48FB1
+#define DEFAULT_FRAME_COLOR 0xFFFFFF
 /*
 pipe: add request -> add logic agent -> frames it -> couples frame and logic agent -> displays it
 TODO:
@@ -27,6 +27,7 @@ void init_workspace(struct WorkSpace* workspace, Display* display, Window root){
     lm->min_cord[1] = 0;
     lm->max_cord[0] = screenAttributes.width;
     lm->max_cord[1] = screenAttributes.height;
+    lm->cur_focus = NULL;
 
     workspace->logic_master = lm; 
 
@@ -48,13 +49,17 @@ void init_workspace(struct WorkSpace* workspace, Display* display, Window root){
             SubstructureRedirectMask | SubstructureNotifyMask);
 }
 
-//rule: split cur index(passed in through indexX and Y) along the longest edge 
 void add_window_to_workspace(struct WorkSpace* workspace, Display* display, Window to_add, struct WindowFrame* cur_frame){
     struct WindowFrame* to_add_frame = (struct WindowFrame*) malloc(sizeof(struct WindowFrame));
-    to_add_frame->la = logic_add(workspace->logic_master, cur_frame->la);
+
+    struct LogicAgent* cur_frame_la = cur_frame == NULL ? NULL : cur_frame->la;
+
+    to_add_frame->la = logic_add(workspace->logic_master, cur_frame_la);
+    to_add_frame->la->window_frame = to_add_frame;
     frame_window(to_add_frame, workspace, to_add, display);
-    //TODO update all edited children 
-}
+
+    update_all_children_frames(to_add_frame->la->parent, display);
+} 
 
 void frame_window(struct WindowFrame* frame, struct WorkSpace* workspace, Window to_add, Display* display){
     int x = frame->la->start_cord[0];
@@ -69,9 +74,9 @@ void frame_window(struct WindowFrame* frame, struct WorkSpace* workspace, Window
             y,
             width,
             height,
-            10,
-            DEFAULT_FRAME_COLOR, //border color
-            DEFAULT_FRAME_COLOR);
+            0,
+            0, //border color
+            get_random_color());
 
     XSelectInput(
             display,
@@ -85,5 +90,36 @@ void frame_window(struct WindowFrame* frame, struct WorkSpace* workspace, Window
             frame->frame,
             0, 0);  
 
+    XMapWindow(display, to_add); //NOTE this will not display until the parent is displayed
     XMapWindow(display, frame->frame); //NOTE this will not display until the parent is displayed
+}
+
+int get_random_color(){
+    //0 - 16777215
+    int cool_colors[] = {0x2596BE, 0xeab676, 0x873e23, 0xabdbe3};
+    //TODO add seed 
+    int index = rand() % (sizeof(cool_colors), sizeof(cool_colors[0])); 
+    return cool_colors[index];
+}
+
+void update_all_children_frames(struct LogicAgent* root, Display* display_){
+    if(root == NULL || root->window_frame == NULL){
+        return;
+    }
+    update_frame(root->window_frame, display_);
+    update_all_children_frames(root->left, display_);
+    update_all_children_frames(root->right, display_);
+}
+
+//updates a frame to match new logic representation
+void update_frame(struct WindowFrame* to_update, Display* display_){
+    struct LogicAgent* la = to_update->la;
+    XWindowChanges changes;
+    changes.x = la->start_cord[0];
+    changes.y = la->start_cord[1];
+    changes.height = la->end_cord[1] - la->start_cord[1];
+    changes.width =  la->end_cord[0] - la->start_cord[0];
+    changes.border_width = 0;
+    //XConfigureWindow(display_, frame, e.value_mask, &changes); 
+    XConfigureWindow(display_, to_update->frame, 0, &changes); 
 }

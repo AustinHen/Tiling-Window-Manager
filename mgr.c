@@ -77,9 +77,9 @@ void handleConfigureRequest(Display* display, Window root, XConfigureRequestEven
 }
 
 void handleMapRequest(Display* display, struct WorkSpace* workspace, XMapRequestEvent event){
-    //add_window_to_workspace(workspace, display, to_add, cur_frame);
-
-    add_first_window(workspace, display, event.window);
+    printf("here");
+    struct WindowFrame* cur_focus = workspace->logic_master->cur_focus == NULL ? NULL : workspace->logic_master->cur_focus->window_frame;
+    add_window_to_workspace(workspace, display, event.window, cur_focus);
 }
 
 

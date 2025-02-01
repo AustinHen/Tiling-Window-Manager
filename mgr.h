@@ -5,12 +5,14 @@ struct LogicMaster{
     struct LogicAgent* root;
     int min_cord[2];
     int max_cord[2];
+    struct LogicAgent* cur_focus;
 };
 
 struct LogicAgent{
     int start_cord[2];
     int end_cord[2];
     int split_dir;
+    struct WindowFrame* window_frame;
     struct LogicAgent* left;
     struct LogicAgent* right;
     struct LogicAgent* parent;
@@ -39,12 +41,14 @@ struct sizes{
 
 void logic_test();
 
+//logic
 struct LogicAgent* logic_add(struct LogicMaster* ws, struct LogicAgent* cur_focus);
 struct LogicAgent* get_default_cur_focus(struct LogicMaster* ws);
 void logic_split(struct LogicMaster* ws, struct LogicAgent* to_split, struct LogicAgent* to_add);
 int get_split_dir(struct LogicAgent* cur_focus);
 int get_depth(struct LogicAgent* cur_focus);
 void logic_remove_leaf(struct LogicMaster* ws, struct LogicAgent* to_delete);
+int get_init_shift(int split_dir, struct LogicAgent* to_delete, struct LogicAgent* sibling);
 void distribute_space(struct LogicAgent* root, int size, int shift, int dir);
 
 //mgr.c
@@ -56,9 +60,8 @@ void handleMapRequest(Display* display, struct WorkSpace* workspace, XMapRequest
 
 //workSpaceUtils.c
 void init_workspace(struct WorkSpace* workspace, Display* display, Window root);
-void add_first_window(struct WorkSpace* workspace, Display* display, Window to_add);
+void add_window_to_workspace(struct WorkSpace* workspace, Display* display, Window to_add, struct WindowFrame* cur_frame);
+void update_frame(struct WindowFrame* to_update, Display* display_);
+void update_all_children_frames(struct LogicAgent* root, Display* display_);
 void frame_window(struct WindowFrame* frame, struct WorkSpace* workspace, Window to_add, Display* display);
-int get_window_size_px(struct sizes* s, int indexs[2]);
-int get_index_sizes(struct sizes* cur, int index);
-void split_node_indexes_adj(struct WindowFrame* head, struct WindowFrame* doNotUpdate, int index, int direction);
-void split_cur_node(int splitRange[2], int splitDir, struct sizes* sizesToUpdate, struct WorkSpace* workspace, struct WindowFrame* cur_frame, struct WindowFrame* to_add_frame);
+int get_random_color();
