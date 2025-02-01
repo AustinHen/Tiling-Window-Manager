@@ -169,3 +169,12 @@ void distribute_space(struct LogicAgent* root, int size, int shift, int dir){
     distribute_space(root->right, size_per+leftovers, shift_per, dir);
 }
 
+/* -- updating focus frame -- */
+//dir -> eg left or right | up or down
+struct LogicAgent* get_focus_frame(int split_dir, int dir, struct LogicAgent* cur){
+    
+}
+
+struct LogicAgent* get_focus_frame_up(int split_dir, int dir, struct LogicAgent* cur){
+
+}
