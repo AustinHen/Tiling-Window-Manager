@@ -41,6 +41,7 @@ struct sizes{
 
 void logic_test();
 
+//TODO fix garbage 
 //logic
 struct LogicAgent* logic_add(struct LogicMaster* ws, struct LogicAgent* cur_focus);
 struct LogicAgent* get_default_cur_focus(struct LogicMaster* ws);
@@ -50,6 +51,9 @@ int get_depth(struct LogicAgent* cur_focus);
 void logic_remove_leaf(struct LogicMaster* ws, struct LogicAgent* to_delete);
 int get_init_shift(int split_dir, struct LogicAgent* to_delete, struct LogicAgent* sibling);
 void distribute_space(struct LogicAgent* root, int size, int shift, int dir);
+struct LogicAgent* get_focus_frame(int split_dir, int dir, struct LogicAgent* cur_focus, struct LogicMaster* ws);
+struct LogicAgent* get_focus_frame_bubble_down(int split_dir, int dir, struct LogicAgent* top);
+struct LogicAgent* get_focus_frame_bubble_up(int split_dir, int dir, struct LogicAgent* cur_focus);
 
 //mgr.c
 int init_mgr(Display** display, Window* root);

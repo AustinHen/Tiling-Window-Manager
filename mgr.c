@@ -13,7 +13,6 @@ int init_mgr(Display** display, Window* root){
      }
      (*root) = DefaultRootWindow((*display));
      return 1;
-        
 }
 
 //logs error and exits
@@ -63,6 +62,42 @@ void mgr_event_loop(Display* display, Window root){
                 handleMapRequest(display, &WorkSpaces[cur_workspace_index], curEvent.xmaprequest);
                 break;
 
+            case ReparentNotify:
+                //we dont care -> we prob triggered it 
+                break;
+
+            case MapNotify:
+                //we dont care -
+                break;
+
+            case ConfigureNotify:
+                //we dont care
+                break;
+
+            case UnmapNotify:
+                //TODO
+                //- unmap frame -> reparent client window (so it doenst break ) -> xdestroywindow(Frame)
+                //logic: just call logic delete window 
+                break;
+
+            case ButtonPress:
+                //TODO
+                //handle any button presses 
+                //NOTE we have to write XGrabButton to propigate it upwards to the twm
+                break;
+
+            case ButtonRelease:
+                //TODO
+                break;
+
+            case KeyPress:
+                //TODO
+                break;
+                
+            case KeyRelease:
+                //TODO
+                break;
+
             default:
                 //unhandled event
                 break;
@@ -70,8 +105,9 @@ void mgr_event_loop(Display* display, Window root){
     }
 }
 
-//event handlers below
+//event handlers 
 void handleConfigureRequest(Display* display, Window root, XConfigureRequestEvent event){
+    //maybe do something but prob dont 
      
 
 }
@@ -82,5 +118,11 @@ void handleMapRequest(Display* display, struct WorkSpace* workspace, XMapRequest
     add_window_to_workspace(workspace, display, event.window, cur_focus);
 }
 
-
-
+void handleUnmapNotify(Display* display, struct WorkSpace* workspace, XUnmapEvent event){
+    //1: search for the frame
+    //2: unmap the frame
+    //3: reparent client window 
+    //
+    //- unmap frame -> reparent client window (so it doenst break ) -> xdestroywindow(Frame)
+    //logic: just call logic delete window 
+}

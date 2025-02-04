@@ -95,11 +95,10 @@ void frame_window(struct WindowFrame* frame, struct WorkSpace* workspace, Window
 }
 
 int get_random_color(){
-    //0 - 16777215
-    int cool_colors[] = {0x2596BE, 0xeab676, 0x873e23, 0xabdbe3};
+    //0 - 16777215 is the range of colors 
+    //int cool_colors[] = {0x2596BE, 0xeab676, 0x873e23, 0xabdbe3};
     //TODO add seed 
-    int index = rand() % (sizeof(cool_colors), sizeof(cool_colors[0])); 
-    return cool_colors[index];
+    return rand() % (16777215); 
 }
 
 void update_all_children_frames(struct LogicAgent* root, Display* display_){
@@ -122,4 +121,14 @@ void update_frame(struct WindowFrame* to_update, Display* display_){
     changes.border_width = 0;
     //XConfigureWindow(display_, frame, e.value_mask, &changes); 
     XConfigureWindow(display_, to_update->frame, 0, &changes); 
+}
+
+void update_focus(int split_dir, int dir, Display* display_, struct WorkSpace* workspace){
+    //call update then shift focus
+
+}
+
+struct WindowFrame* find_window(WorkSpace* workspace, Window* to_find){
+
+
 }

@@ -29,21 +29,6 @@ struct LogicAgent* logic_add(struct LogicMaster* ws, struct LogicAgent* cur_focu
     return to_add; 
 }
 
-//returns a valid cur_focus
-struct LogicAgent* get_default_cur_focus(struct LogicMaster* ws){
-    struct LogicAgent* cur = ws->root;
-    assert(cur != NULL); //there are no nodes -> how did we get here 
-
-    while(cur->right != NULL || cur->left != NULL){
-        if(cur->right != NULL){
-            cur = cur->right;
-        }else{
-            cur = cur->left;
-        }
-    }
-    return cur;
-}
-
 //splits to_split, giving half its space to to_add and reparents both nodes
 void logic_split(struct LogicMaster* ws, struct LogicAgent* to_split, struct LogicAgent* to_add){
     assert(to_split != NULL); //to split should be a node 
@@ -171,10 +156,73 @@ void distribute_space(struct LogicAgent* root, int size, int shift, int dir){
 
 /* -- updating focus frame -- */
 //dir -> eg left or right | up or down
-struct LogicAgent* get_focus_frame(int split_dir, int dir, struct LogicAgent* cur){
-    
+struct LogicAgent* get_focus_frame(int split_dir, int dir, struct LogicAgent* cur_focus, struct LogicMaster* ws){
+    if(cur_focus == NULL){
+        //TODO improve logic so we can get one that matches the input better
+        return get_default_cur_focus(ws);
+    }
+
+    struct LogicAgent* top = get_focus_frame_bubble_up(split_dir, dir, cur_focus);
+    if(top == NULL){
+        //cur_focus is the furthest frame in the set direction 
+        return cur_focus;
+    }
+    return get_focus_frame_bubble_down(split_dir, dir, cur_focus); 
 }
 
-struct LogicAgent* get_focus_frame_up(int split_dir, int dir, struct LogicAgent* cur){
+struct LogicAgent* get_focus_frame_bubble_up(int split_dir, int dir, struct LogicAgent* cur_focus){
+    struct LogicAgent* cur = cur_focus;
+    struct LogicAgent* prev = cur;
+    while(cur != NULL){
+        prev = cur;
+        cur = cur->parent;
+        if(cur->split_dir != split_dir){
+            continue; //not the right split dir -> keep going up
+        }
+        struct LogicAgent* not_prev = cur->left != prev ? cur->left : cur->right; 
+        
+        //TODO update logic so its not this bad looking
+        if(prev->start_cord[split_dir] < not_prev->start_cord[split_dir]){
+            if(dir < 0){
+                continue;
+            }
+        }else{
+            if(dir > 0){
+                continue; 
+            }
+        }
+        return cur; 
+    }
 
+    return NULL;
+}
+
+
+struct LogicAgent* get_focus_frame_bubble_down(int split_dir, int dir, struct LogicAgent* top){
+    struct LogicAgent* cur = top;
+    assert(cur != NULL); //how did we get here 
+    while(cur->left != NULL){
+        if(cur->split_dir != split_dir){
+            //who cares
+            cur = cur->left; 
+            continue;
+        }    
+        //TODO FINISH AND CHECK LOGIC
+    }
+    return cur;
+}
+
+//returns a valid cur_focus
+struct LogicAgent* get_default_cur_focus(struct LogicMaster* ws){
+    struct LogicAgent* cur = ws->root;
+    assert(cur != NULL); //there are no nodes -> how did we get here 
+
+    while(cur->right != NULL || cur->left != NULL){
+        if(cur->right != NULL){
+            cur = cur->right;
+        }else{
+            cur = cur->left;
+        }
+    }
+    return cur;
 }
