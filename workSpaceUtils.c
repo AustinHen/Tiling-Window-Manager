@@ -43,14 +43,12 @@ void init_workspace(struct WorkSpace* workspace, Display* display, Window root){
             DEFAULT_WINDOW_COLOR,
             DEFAULT_WINDOW_COLOR);
 
-    XSelectInput(
-            display,
-            workspace->root,
-            SubstructureRedirectMask | SubstructureNotifyMask);
+    XSelectInput( display, workspace->root, SubstructureRedirectMask | SubstructureNotifyMask);
 }
 
 void add_window_to_workspace(struct WorkSpace* workspace, Display* display, Window to_add, struct WindowFrame* cur_frame){
     struct WindowFrame* to_add_frame = (struct WindowFrame*) malloc(sizeof(struct WindowFrame));
+    to_add_frame->w = to_add;
 
     struct LogicAgent* cur_frame_la = cur_frame == NULL ? NULL : cur_frame->la;
 
@@ -59,6 +57,8 @@ void add_window_to_workspace(struct WorkSpace* workspace, Display* display, Wind
     frame_window(to_add_frame, workspace, to_add, display);
 
     update_all_children_frames(to_add_frame->la->parent, display);
+    //update focus
+    XSetInputFocus(display, to_add, RevertToNone, CurrentTime);
 } 
 
 void frame_window(struct WindowFrame* frame, struct WorkSpace* workspace, Window to_add, Display* display){
@@ -89,9 +89,17 @@ void frame_window(struct WindowFrame* frame, struct WorkSpace* workspace, Window
             to_add,
             frame->frame,
             0, 0);  
-
     XMapWindow(display, to_add); //NOTE this will not display until the parent is displayed
     XMapWindow(display, frame->frame); //NOTE this will not display until the parent is displayed
+
+    XWindowChanges changes;
+    changes.x = 0;
+    changes.y = 0;
+    changes.height = height;
+    changes.width =  width;
+    changes.border_width = 0;
+    unsigned int val_mask = CWWidth  | CWHeight | CWX | CWY | CWBorderWidth;
+    XConfigureWindow(display, to_add, val_mask, &changes); 
 }
 
 int get_random_color(){
@@ -102,10 +110,13 @@ int get_random_color(){
 }
 
 void update_all_children_frames(struct LogicAgent* root, Display* display_){
-    if(root == NULL || root->window_frame == NULL){
+    if(root == NULL){
         return;
     }
-    update_frame(root->window_frame, display_);
+    if(root->window_frame != NULL){
+        update_frame(root->window_frame, display_);
+    }
+
     update_all_children_frames(root->left, display_);
     update_all_children_frames(root->right, display_);
 }
@@ -119,16 +130,43 @@ void update_frame(struct WindowFrame* to_update, Display* display_){
     changes.height = la->end_cord[1] - la->start_cord[1];
     changes.width =  la->end_cord[0] - la->start_cord[0];
     changes.border_width = 0;
-    //XConfigureWindow(display_, frame, e.value_mask, &changes); 
-    XConfigureWindow(display_, to_update->frame, 0, &changes); 
+    unsigned int val_mask = CWWidth  | CWHeight | CWX | CWY | CWBorderWidth;
+    XConfigureWindow(display_, to_update->frame, val_mask, &changes); 
+    changes.x = 0;
+    changes.y = 0;
+    XConfigureWindow(display_, to_update->w, val_mask, &changes); 
 }
 
 void update_focus(int split_dir, int dir, Display* display_, struct WorkSpace* workspace){
     //call update then shift focus
-
+    struct LogicAgent* next_focus = get_focus_frame(split_dir, dir, workspace->logic_master->cur_focus, workspace->logic_master);
+    if(next_focus == NULL){
+        return;
+    }
+    XSetInputFocus(display_, next_focus->window_frame->w, RevertToNone, CurrentTime);
 }
 
-struct WindowFrame* find_window(WorkSpace* workspace, Window* to_find){
+struct LogicAgent* find_windows_la(struct LogicAgent* root, Window to_find){
+    if(root == NULL){
+        return NULL;
+    } 
+
+    if(root->window_frame != NULL && root->window_frame->w == to_find){
+        return root;
+    }
+
+    struct LogicAgent* left = find_windows_la(root->left, to_find);
+    if(left != NULL) {return left;}
+    struct LogicAgent* right = find_windows_la(root->right, to_find);
+    if(right != NULL) {return right;}
+
+    return NULL;
+}
 
 
+//just calls grab for all needed keys -> makes life a bit better
+void grab_all_keys(Display* display_, Window w){
+    //DISPLAY, int keycode, int mod, grab window (idk what to put here), owner_event(idk), 0, 0
+    //XGrabKey(display_, );
+    //need to XGrabEvent() to allow futher processing
 }

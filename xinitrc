@@ -1,9 +1,3 @@
-xclock &
-xeyes &
-xterm &
-xterm &
-xterm &
-xterm &
-
-export GLOG_logtostderr=1
+xterm -xrm 'xterm*allowWindowOps: true'&
+xterm -xrm 'xterm*allowWindowOps: true'&
 exec ./twm

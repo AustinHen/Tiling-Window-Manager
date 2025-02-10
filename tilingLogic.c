@@ -39,6 +39,7 @@ void logic_split(struct LogicMaster* ws, struct LogicAgent* to_split, struct Log
 
     //makes the parent of to_add and to_split; yes there is a lot of copying 
     struct LogicAgent* new_parent = (struct LogicAgent*) malloc(sizeof(struct LogicAgent));
+    new_parent->window_frame = NULL;
     new_parent->parent = to_split->parent;
     new_parent->split_dir = split_dir;
     if(new_parent->parent != NULL){
@@ -47,6 +48,9 @@ void logic_split(struct LogicMaster* ws, struct LogicAgent* to_split, struct Log
         }else{
             new_parent->parent->right = new_parent;
         }
+    }else{
+        //new parent is the new root
+        ws->root = new_parent;
     }
     to_split->parent = new_parent;
     new_parent->left = to_split;
@@ -87,13 +91,14 @@ int get_depth(struct LogicAgent* cur_focus){
     return depth;
 }
 
-void logic_remove_leaf(struct LogicMaster* ws, struct LogicAgent* to_delete){
+//Returns sibling (makes life way easier)
+struct LogicAgent* logic_remove_leaf(struct LogicMaster* ws, struct LogicAgent* to_delete){
     assert(to_delete->left == NULL && to_delete->right == NULL); //should only remove leaf nodes
 
     if(to_delete == ws->root){
         ws->root = NULL;
         free(to_delete);
-        return;
+        return NULL;
     }
 
     struct LogicAgent* delete_parent = to_delete->parent;
@@ -111,6 +116,9 @@ void logic_remove_leaf(struct LogicMaster* ws, struct LogicAgent* to_delete){
         }else{
             delete_parent->parent->right = sibling;
         }
+    }else{
+        //removing the ws root 
+        ws->root = sibling; 
     }
 
     if(ws->cur_focus == to_delete){
@@ -119,6 +127,7 @@ void logic_remove_leaf(struct LogicMaster* ws, struct LogicAgent* to_delete){
 
     free(delete_parent); 
     free(to_delete);
+    return sibling;
 }
 
 int get_init_shift(int split_dir, struct LogicAgent* to_delete, struct LogicAgent* sibling){
@@ -157,8 +166,7 @@ void distribute_space(struct LogicAgent* root, int size, int shift, int dir){
 /* -- updating focus frame -- */
 //dir -> eg left or right | up or down
 struct LogicAgent* get_focus_frame(int split_dir, int dir, struct LogicAgent* cur_focus, struct LogicMaster* ws){
-    if(cur_focus == NULL){
-        //TODO improve logic so we can get one that matches the input better
+    if(cur_focus == NULL || split_dir == 0){
         return get_default_cur_focus(ws);
     }
 

@@ -24,6 +24,8 @@ void mgr_error_handler(){
 
 void mgr_event_loop(Display* display, Window root){
     XSelectInput(display, root, SubstructureRedirectMask | SubstructureNotifyMask); 
+    //TODO sets error handler
+    XSetErrorHandler(NULL);
     //sets up WorkSpaces 
     const int NUM_WORKSPACES = 1;
     assert(NUM_WORKSPACES > 0 && NUM_WORKSPACES <= 10);
@@ -35,7 +37,7 @@ void mgr_event_loop(Display* display, Window root){
     for(int i=0; i<NUM_WORKSPACES; i++){
         init_workspace(&WorkSpaces[i], display, root);
     }
-
+    
     //makes cur_workspace visible
     XMapWindow(display, (WorkSpaces[cur_workspace_index].root));
 
@@ -75,9 +77,7 @@ void mgr_event_loop(Display* display, Window root){
                 break;
 
             case UnmapNotify:
-                //TODO
-                //- unmap frame -> reparent client window (so it doenst break ) -> xdestroywindow(Frame)
-                //logic: just call logic delete window 
+                handleUnmapNotify(display, &WorkSpaces, NUM_WORKSPACES, curEvent.xunmap);
                 break;
 
             case ButtonPress:
@@ -107,9 +107,15 @@ void mgr_event_loop(Display* display, Window root){
 
 //event handlers 
 void handleConfigureRequest(Display* display, Window root, XConfigureRequestEvent event){
-    //maybe do something but prob dont 
-     
-
+    XWindowChanges changes;
+    changes.x = event.x;
+    changes.y = event.y;
+    changes.width = event.width;
+    changes.height = event.height;
+    changes.border_width = event.border_width;
+    changes.sibling = event.above;
+    changes.stack_mode = event.detail;
+    XConfigureWindow(display, event.window, event.value_mask, &changes);
 }
 
 void handleMapRequest(Display* display, struct WorkSpace* workspace, XMapRequestEvent event){
@@ -118,11 +124,36 @@ void handleMapRequest(Display* display, struct WorkSpace* workspace, XMapRequest
     add_window_to_workspace(workspace, display, event.window, cur_focus);
 }
 
-void handleUnmapNotify(Display* display, struct WorkSpace* workspace, XUnmapEvent event){
-    //1: search for the frame
-    //2: unmap the frame
-    //3: reparent client window 
-    //
-    //- unmap frame -> reparent client window (so it doenst break ) -> xdestroywindow(Frame)
-    //logic: just call logic delete window 
+void handleUnmapNotify(Display* display, struct WorkSpace* workspaces, int num_ws, XUnmapEvent event){
+    //1: find logic agent
+    struct LogicAgent* to_remove_la = NULL; 
+    int i =0;
+    for(; i<num_ws; i++){
+        to_remove_la = find_windows_la(workspaces[i].logic_master->root, event.window);
+        if(to_remove_la != NULL){ break;}
+    }
+    if(to_remove_la == NULL){
+        //prob one of our frames -> do nothing
+        return;
+    }
+    //2: unmap the frame and kill the frame
+    struct WindowFrame* to_remove_wf = to_remove_la->window_frame;
+    XUnmapWindow(display, to_remove_wf->frame);
+    XDestroyWindow(display, to_remove_wf->frame); 
+
+    //3:logic remove
+    // TODO I think issue is here but idk
+    struct LogicAgent* sibling = logic_remove_leaf(workspaces[i].logic_master, to_remove_la);
+    //remove WindowFrame
+    free(to_remove_wf);
+
+    if(workspaces[i].logic_master->root == NULL){
+        return;
+    }
+    //XReparentWindow(display, event.window, workspaces[i].root, 0, 0);
+    //redraw all bs
+    update_all_children_frames(workspaces[i].logic_master->root, display);
+    //get new focus 
+    update_focus(0, 0, display, &workspaces[i]);
+
 }
