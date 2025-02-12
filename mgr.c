@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <X11/Xlib.h>
+#include <X11/Xutil.h>
 //starts the manager
 //returns 1 on suc, 0 on fail 
 int init_mgr(Display** display, Window* root){
@@ -13,13 +14,6 @@ int init_mgr(Display** display, Window* root){
      }
      (*root) = DefaultRootWindow((*display));
      return 1;
-}
-
-//logs error and exits
-void mgr_error_handler(){
-    printf("error");     
-    fflush(stdout); //ensures the error message is visible
-    exit(1); //exits with error
 }
 
 void mgr_event_loop(Display* display, Window root){
@@ -41,6 +35,7 @@ void mgr_event_loop(Display* display, Window root){
     //makes cur_workspace visible
     XMapWindow(display, (WorkSpaces[cur_workspace_index].root));
 
+    grab_all_keys(display, root);
     //event loop
     XEvent curEvent;
     for(;;){ 
@@ -92,6 +87,7 @@ void mgr_event_loop(Display* display, Window root){
 
             case KeyPress:
                 //TODO
+                handleKeyPress(display, root, curEvent.xkey);
                 break;
                 
             case KeyRelease:

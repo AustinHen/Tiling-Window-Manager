@@ -67,3 +67,7 @@ void update_all_children_frames(struct LogicAgent* root, Display* display_);
 void frame_window(struct WindowFrame* frame, struct WorkSpace* workspace, Window to_add, Display* display);
 int get_random_color();
 void update_focus(int split_dir, int dir, Display* display_, struct WorkSpace* workspace);
+
+//keybs
+void grab_all_keys(Display* display_, Window w);
+void handleKeyPress(Display* display, Window root, XKeyEvent event);

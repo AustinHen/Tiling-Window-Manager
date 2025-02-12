@@ -5,16 +5,6 @@
 #include <X11/Xlib.h>
 #define DEFAULT_WINDOW_COLOR 0xF48FB1
 #define DEFAULT_FRAME_COLOR 0xFFFFFF
-/*
-pipe: add request -> add logic agent -> frames it -> couples frame and logic agent -> displays it
-TODO:
-    - update workspace struct / init_workspace
-    - rewrite frame function
-    - update add function (kinda just rewrite it)
-    - create delete function
-logicTests.c
-
-*/
 //sets up workspace 
 void init_workspace(struct WorkSpace* workspace, Display* display, Window root){
     //grabs the screen's atributes
@@ -102,13 +92,6 @@ void frame_window(struct WindowFrame* frame, struct WorkSpace* workspace, Window
     XConfigureWindow(display, to_add, val_mask, &changes); 
 }
 
-int get_random_color(){
-    //0 - 16777215 is the range of colors 
-    //int cool_colors[] = {0x2596BE, 0xeab676, 0x873e23, 0xabdbe3};
-    //TODO add seed 
-    return rand() % (16777215); 
-}
-
 void update_all_children_frames(struct LogicAgent* root, Display* display_){
     if(root == NULL){
         return;
@@ -163,10 +146,9 @@ struct LogicAgent* find_windows_la(struct LogicAgent* root, Window to_find){
     return NULL;
 }
 
-
-//just calls grab for all needed keys -> makes life a bit better
-void grab_all_keys(Display* display_, Window w){
-    //DISPLAY, int keycode, int mod, grab window (idk what to put here), owner_event(idk), 0, 0
-    //XGrabKey(display_, );
-    //need to XGrabEvent() to allow futher processing
+int get_random_color(){
+    //0 - 16777215 is the range of colors 
+    //int cool_colors[] = {0x2596BE, 0xeab676, 0x873e23, 0xabdbe3};
+    //TODO add seed 
+    return rand() % (16777215); 
 }
