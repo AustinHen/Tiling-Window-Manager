@@ -7,22 +7,30 @@ Tiling Window Managers do not allow you to minimize applications rather, you sen
 # Demo
 SOON TO BE ADDED 
 # Key Bindings
-<kbd>Mod</kbd> = <kbd>Windows</kbd> by default 
+<kbd>Mod</kbd> = <kbd>Windows</kbd> by default
 
 <kbd>Mod</kbd> +<kbd>Enter</kbd> | open new terminal
+
 <kbd>Mod</kbd> +<kbd>Shift</kbd>+<kbd>q</kbd> | close current window
 
 <kbd>Mod</kbd> +<kbd>0</kbd> ... <kbd>Mod</kbd>+<kbd>9</kbd> | swap to workstation 0-9 respectively 
+
 <kbd>Mod</kbd> +<kbd>Shift</kbd>+ <kbd>0</kbd> ... <kbd>Mod</kbd>+<kbd>Shift</kbd>+<kbd>9</kbd> | send current window to workstation 0-9 respectively 
 
 <kbd>Mod</kbd> + <kbd>h</kbd> | change focus one window to the left
+
 <kbd>Mod</kbd> + <kbd>j</kbd> | change focus one window up 
+
 <kbd>Mod</kbd> + <kbd>k</kbd> | change focus one window down
+
 <kbd>Mod</kbd> + <kbd>;</kbd> | change focus one window to the right
 
 <kbd>Mod</kbd> + <kbd>h</kbd>+<kbd>shift</kbd> | swap cur window with one window to the left
+
 <kbd>Mod</kbd> + <kbd>j</kbd>+<kbd>shift</kbd> | swap cur window with one window up
+
 <kbd>Mod</kbd> + <kbd>k</kbd>+<kbd>shift</kbd> | swap cur window with one window down 
+
 <kbd>Mod</kbd> + <kbd>;</kbd>+<kbd>shift</kbd> | swap cur window with one window to the right
 
 # Running
