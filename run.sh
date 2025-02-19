@@ -12,7 +12,7 @@ if [ -z "$XEPHYR" ]; then
     echo "Xephyr not found, exiting"
     exit 1
 fi
-xinit ./xinitrc -- \
+xinit ./include/xinitrc -- \
     "$XEPHYR" \
         :100 \
         -ac \

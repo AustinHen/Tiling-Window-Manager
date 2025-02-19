@@ -2,9 +2,9 @@ CC = gcc
 CFLAGS = -Wall -g
 LDFLAGS = -lX11
 TARGET = twm
-SRCS = main.c mgr.c workSpaceUtils.c tilingLogic.c keyHandle.c
+SRCS = src/main.c src/mgr.c src/workSpaceUtils.c src/tilingLogic.c src/keyHandle.c
 OBJS = $(SRCS:.c=.o)
-HEADERS = mgr.h
+HEADERS = include/mgr.h
 
 all: $(TARGET)
 

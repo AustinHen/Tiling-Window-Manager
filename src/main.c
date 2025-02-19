@@ -1,4 +1,4 @@
-#include "mgr.h"
+#include "../include/mgr.h"
 
 int main(int argc, char** argv){
     //set up the manager

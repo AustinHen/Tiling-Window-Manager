@@ -1,4 +1,4 @@
-#include "mgr.h"
+#include "../include/mgr.h"
 #include <assert.h>
 #include <stdio.h>
 #include <X11/Xutil.h>
