@@ -1,6 +1,10 @@
 #include "mgr.h"
+#include <assert.h>
 #include <stdio.h>
 #include <X11/Xutil.h>
+#include <sys/types.h>
+#include<stdlib.h>
+#include<unistd.h>
 //handles all key presses
 //just calls grab for all needed keys -> call on workstation root to get updated on all windows 
 const unsigned int MM1 = Mod4Mask;
@@ -57,14 +61,22 @@ void swap_workspace(){}
 void move_window_to_workspace(){}
 void change_focus(){}
 void swap_windows(){}
+
 void close_cur_window(){}
-void open_terminal(){}
+
+void open_terminal(){
+    pid_t pid = fork();
+    if(pid == 0){
+        char *args[]={"alacritty", NULL};
+        execv(args[0], args);
+    }
+}
 
 
 //TODO update function sig to get all data
 void handleKeyPress(Display* display, Window root, XKeyEvent event){
     //rmv window
-    if((event.state & MM2) && (event.keycode == XKeysymToKeycode(display, XF_Q))){
+    if((event.state & MM2) && (event.keycode == XKeysymToKeycode(display, XK_Q))){
         close_cur_window();
         return;
     }
@@ -79,10 +91,10 @@ void handleKeyPress(Display* display, Window root, XKeyEvent event){
     for(int i=0; i<10; i++){
         int key_code =  XKeysymToKeycode(display, XK_KP_0 + i);
         if(event.keycode == key_code){
-            if(event & MM1){
-                swap_workspace()
+            if(event.state & MM1){
+                swap_workspace();
             }
-            if(event & MM2) {
+            if(event.state & MM2) {
                 move_window_to_workspace();
             }
             return;
@@ -93,24 +105,26 @@ void handleKeyPress(Display* display, Window root, XKeyEvent event){
     //just arow keys lef
     //code , split_dir, dir 
     //split_dir  0 if split on x, 1 if split y 
-    int keys_to_dir[4][3]{ 
-        {XKeysymToKeycode(display, XP_H), 0, -1},
-        {XKeysymToKeycode(display, XP_L), 0, 1},
-        {XKeysymToKeycode(display, XP_J), 1, -1},
-        {XKeysymToKeycode(display, XP_K), 1, 1}
-    } 
+    int keys_to_dir[4][3] = { 
+        {XKeysymToKeycode(display, XK_H), 0, -1},
+        {XKeysymToKeycode(display, XK_L), 0, 1},
+        {XKeysymToKeycode(display, XK_J), 1, -1},
+        {XKeysymToKeycode(display, XK_K), 1, 1}
+    }; 
     for(int i=0; i<4; i++){
         if(event.keycode == keys_to_dir[i][0]){
             //correct keycode 
-            if(event & MM1){
+            if(event.state & MM1){
                 change_focus();
             }
-            if(event & MM2){
+            if(event.state & MM2){
                 swap_windows();
             }
             return;
         }
     }
-    assert(false, "Unhandled grabed keycode");
+    assert(0); //unhandled keypress 
+
 }
+
 
