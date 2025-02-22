@@ -32,7 +32,7 @@ void grab_all_keys(Display* display_, Window w){
     }
     
     //grabs rest of em TODO, MAKE LESS jankye
-    int keycodes_and_mods[10][2] = {
+    int keycodes_and_mods[11][2] = {
         {XKeysymToKeycode(display_ , XK_H), MM1},
         {XKeysymToKeycode(display_ , XK_J), MM1},
         {XKeysymToKeycode(display_ , XK_K), MM1},
@@ -42,13 +42,14 @@ void grab_all_keys(Display* display_, Window w){
         {XKeysymToKeycode(display_ , XK_K), MM2},
         {XKeysymToKeycode(display_ , XK_L), MM2},
         {XKeysymToKeycode(display_ , XK_Q), MM2},
-        {XKeysymToKeycode(display_ , XK_Return), MM1}
+        {XKeysymToKeycode(display_ , XK_Return), MM1},
+        {XKeysymToKeycode(display_ , XK_D), MM1}
     };
 
     for(int i=0; i<(sizeof(keycodes_and_mods))/sizeof(keycodes_and_mods[0]); i++){
         XGrabKey(display_,
                 keycodes_and_mods[i][0], //keycode
-                MM2, //mod
+                keycodes_and_mods[1][1], //mod
                 w, //window
                 0, //dont notify children
                 GrabModeAsync,
@@ -64,23 +65,42 @@ void swap_windows(){}
 
 void close_cur_window(){}
 
-void open_terminal(){
+void open_app_launcher(){
     pid_t pid = fork();
+    if(pid < 0){
+        printf("failed to launch fork issue");
+    }
     if(pid == 0){
-        char *args[]={"alacritty", NULL};
-        execv(args[0], args);
+        execl("/usr/bin/dmenu_run", "dmenu_run", (char*)NULL); 
+        printf("failed to launch");
     }
 }
 
+void open_terminal(){
+    pid_t pid = fork();
+    if(pid < 0){
+        printf("failed to launch fork issue");
+    }
+    if(pid == 0){
+        execl("/usr/bin/xterm", "xterm", (char*)NULL); 
+        printf("failed to launch");
+    }
+}
 
 //TODO update function sig to get all data
 void handleKeyPress(Display* display, Window root, XKeyEvent event){
     //rmv window
     if((event.state & MM2) && (event.keycode == XKeysymToKeycode(display, XK_Q))){
+        exit(1);
         close_cur_window();
         return;
     }
     
+    //opens file launcher
+    if((event.state & MM1) && (event.keycode == XKeysymToKeycode(display, XK_D))){
+        open_app_launcher();
+        return;
+    }
     //open open_terminal
     if((event.state & MM1) && (event.keycode == XKeysymToKeycode(display, XK_Return))){
         open_terminal();

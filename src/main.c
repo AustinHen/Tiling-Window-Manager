@@ -1,5 +1,6 @@
 #include "../include/mgr.h"
-
+#include <sys/types.h>
+#include <unistd.h>
 int main(int argc, char** argv){
     //set up the manager
     Display* display;

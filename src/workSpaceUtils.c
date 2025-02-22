@@ -47,6 +47,7 @@ void add_window_to_workspace(struct WorkSpace* workspace, Display* display, Wind
     frame_window(to_add_frame, workspace, to_add, display);
 
     update_all_children_frames(to_add_frame->la->parent, display);
+    
     //update focus
     XSetInputFocus(display, to_add, RevertToNone, CurrentTime);
 } 
@@ -120,14 +121,7 @@ void update_frame(struct WindowFrame* to_update, Display* display_){
     XConfigureWindow(display_, to_update->w, val_mask, &changes); 
 }
 
-void update_focus(int split_dir, int dir, Display* display_, struct WorkSpace* workspace){
-    //call update then shift focus
-    struct LogicAgent* next_focus = get_focus_frame(split_dir, dir, workspace->logic_master->cur_focus, workspace->logic_master);
-    if(next_focus == NULL){
-        return;
-    }
-    XSetInputFocus(display_, next_focus->window_frame->w, RevertToNone, CurrentTime);
-}
+
 
 struct LogicAgent* find_windows_la(struct LogicAgent* root, Window to_find){
     if(root == NULL){

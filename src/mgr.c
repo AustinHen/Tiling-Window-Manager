@@ -34,6 +34,8 @@ void mgr_event_loop(Display* display, Window root){
     
     //makes cur_workspace visible
     XMapWindow(display, (WorkSpaces[cur_workspace_index].root));
+    //sets focus
+    XSetInputFocus(display, WorkSpaces[cur_workspace_index].root, RevertToNone, CurrentTime);
 
     grab_all_keys(display, root);
     //event loop
@@ -144,6 +146,8 @@ void handleUnmapNotify(Display* display, struct WorkSpace* workspaces, int num_w
     free(to_remove_wf);
 
     if(workspaces[i].logic_master->root == NULL){
+        XSetInputFocus(display, workspaces[i].root, RevertToNone, CurrentTime);
+        //open_terminal();        
         return;
     }
     //XReparentWindow(display, event.window, workspaces[i].root, 0, 0);
