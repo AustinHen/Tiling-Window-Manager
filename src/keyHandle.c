@@ -57,11 +57,11 @@ void grab_all_keys(Display* display_, Window w){
     }
 }
 
-//all actions to take TODO move to diff file
-void swap_workspace(){}
+//all actions to take TODO move to dif file
+//void swap_workspace(int cur_workspace_index, int swap_to_idx, struct WorkSpace *workspaces){
+   //assert(swap_to_idx >= 0 && swap_to_idx < 10);
+//}
 void move_window_to_workspace(){}
-void change_focus(){}
-void swap_windows(){}
 
 void close_cur_window(){}
 
@@ -112,7 +112,7 @@ void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkS
         int key_code =  XKeysymToKeycode(display, XK_KP_0 + i);
         if(event.keycode == key_code){
             if(event.state & MM1){
-                swap_workspace();
+                //swap_workspace();
             }
             if(event.state & MM2) {
                 move_window_to_workspace();
@@ -128,8 +128,8 @@ void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkS
     int keys_to_dir[4][3] = { 
         {XKeysymToKeycode(display, XK_H), 0, -1},
         {XKeysymToKeycode(display, XK_L), 0, 1},
-        {XKeysymToKeycode(display, XK_J), 1, -1},
-        {XKeysymToKeycode(display, XK_K), 1, 1}
+        {XKeysymToKeycode(display, XK_J), 1, 1},
+        {XKeysymToKeycode(display, XK_K), 1, -1}
     }; 
     for(int i=0; i<4; i++){
         if(event.keycode == keys_to_dir[i][0]){
@@ -138,7 +138,6 @@ void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkS
                 update_focus(keys_to_dir[i][1], keys_to_dir[i][2], display, &workspace);
             }
             if(event.state & MM2){
-                swap_windows();
             }
             return;
         }

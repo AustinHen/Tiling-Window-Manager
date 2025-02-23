@@ -140,7 +140,6 @@ void handleUnmapNotify(Display* display, struct WorkSpace* workspaces, int num_w
     XDestroyWindow(display, to_remove_wf->frame); 
 
     //3:logic remove
-    // TODO I think issue is here but idk
     struct LogicAgent* sibling = logic_remove_leaf(workspaces[i].logic_master, to_remove_la);
     //remove WindowFrame
     free(to_remove_wf);
