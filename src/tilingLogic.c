@@ -134,7 +134,7 @@ int get_init_shift(int split_dir, struct LogicAgent* to_delete, struct LogicAgen
     if(to_delete->start_cord[split_dir] > sibling->start_cord[split_dir]){
         return 0;
     }
-    return sibling->start_cord[split_dir] - to_delete->start_cord[split_dir];
+    return to_delete->start_cord[split_dir] - sibling->start_cord[split_dir];
 }
 
 void distribute_space(struct LogicAgent* root, int size, int shift, int dir){

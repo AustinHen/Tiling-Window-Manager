@@ -47,8 +47,8 @@ struct LogicAgent* get_focus_frame_bubble_up(int split_dir, int dir, struct Logi
         struct LogicAgent* not_prev = cur->left != prev ? cur->left : cur->right; 
         printf("inloop: %d", not_prev);
 
-        int dif = prev->start_cord[split_dir] - not_prev->start_cord[split_dir];
-        if(dif * dir < 0){
+        int dif = not_prev->start_cord[split_dir] - prev->start_cord[split_dir];
+        if(dif * dir > 0){
             return not_prev;
         }
     }

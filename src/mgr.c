@@ -156,9 +156,10 @@ void handleUnmapNotify(Display* display, struct WorkSpace* workspaces, int num_w
     
     //get new focus 
     if(workspaces[i].logic_master->cur_focus == NULL || workspaces[i].logic_master->cur_focus == to_remove_la){
-
+        printf("failed");
         workspaces[i].logic_master->cur_focus = NULL;
         update_focus(0, 0, display, &workspaces[i]);
+        return;
     }
     update_focus(0, 0, display, &workspaces[i]);
 
