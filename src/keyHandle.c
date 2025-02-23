@@ -88,7 +88,7 @@ void open_terminal(){
 }
 
 //TODO update function sig to get all data
-void handleKeyPress(Display* display, Window root, XKeyEvent event){
+void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkSpace workspace){
     //rmv window
     if((event.state & MM2) && (event.keycode == XKeysymToKeycode(display, XK_Q))){
         exit(1);
@@ -135,7 +135,7 @@ void handleKeyPress(Display* display, Window root, XKeyEvent event){
         if(event.keycode == keys_to_dir[i][0]){
             //correct keycode 
             if(event.state & MM1){
-                change_focus();
+                update_focus(keys_to_dir[i][1], keys_to_dir[i][2], display, &workspace);
             }
             if(event.state & MM2){
                 swap_windows();
@@ -143,7 +143,6 @@ void handleKeyPress(Display* display, Window root, XKeyEvent event){
             return;
         }
     }
-    assert(0); //unhandled keypress 
 
 }
 

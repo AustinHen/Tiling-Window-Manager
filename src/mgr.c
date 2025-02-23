@@ -89,7 +89,7 @@ void mgr_event_loop(Display* display, Window root){
 
             case KeyPress:
                 //TODO
-                handleKeyPress(display, root, curEvent.xkey);
+                handleKeyPress(display, root, curEvent.xkey, WorkSpaces[cur_workspace_index]);
                 break;
                 
             case KeyRelease:
@@ -153,7 +153,13 @@ void handleUnmapNotify(Display* display, struct WorkSpace* workspaces, int num_w
     //XReparentWindow(display, event.window, workspaces[i].root, 0, 0);
     //redraw all bs
     update_all_children_frames(workspaces[i].logic_master->root, display);
+    
     //get new focus 
+    if(workspaces[i].logic_master->cur_focus == NULL || workspaces[i].logic_master->cur_focus == to_remove_la){
+
+        workspaces[i].logic_master->cur_focus = NULL;
+        update_focus(0, 0, display, &workspaces[i]);
+    }
     update_focus(0, 0, display, &workspaces[i]);
 
 }
