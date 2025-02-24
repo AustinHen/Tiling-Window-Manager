@@ -1,4 +1,6 @@
 #include "../include/mgr.h"
+#include <X11/X.h>
+#include <X11/Xlib.h>
 #include <assert.h>
 #include <stdio.h>
 #include <X11/Xutil.h>
@@ -10,29 +12,8 @@
 const unsigned int MM1 = Mod4Mask;
 const unsigned int MM2 = Mod4Mask | ShiftMask;
 void grab_all_keys(Display* display_, Window w){
-    //grabs all of the mod -> numbers
-    for(int i=0; i<10; i++){
-        int key_code =  XKeysymToKeycode(display_, XK_KP_0 + i);
-        XGrabKey(display_,
-                key_code, //keycode
-                MM1, //mod
-                w, //window
-                0, //dont notify children
-                GrabModeAsync,
-                GrabModeAsync);
-
-         XGrabKey(display_,
-                key_code, //keycode
-                MM2, //mod
-                w, //window
-                0, //dont notify children
-                GrabModeAsync,
-                GrabModeAsync);
- 
-    }
-    
     //grabs rest of em TODO, MAKE LESS jankye
-    int keycodes_and_mods[11][2] = {
+    int keycodes_and_mods[31][2] = {
         {XKeysymToKeycode(display_ , XK_H), MM1},
         {XKeysymToKeycode(display_ , XK_J), MM1},
         {XKeysymToKeycode(display_ , XK_K), MM1},
@@ -43,7 +24,27 @@ void grab_all_keys(Display* display_, Window w){
         {XKeysymToKeycode(display_ , XK_L), MM2},
         {XKeysymToKeycode(display_ , XK_Q), MM2},
         {XKeysymToKeycode(display_ , XK_Return), MM1},
-        {XKeysymToKeycode(display_ , XK_D), MM1}
+        {XKeysymToKeycode(display_ , XK_D), MM1},
+        {XKeysymToKeycode(display_ , XK_0), MM1},
+        {XKeysymToKeycode(display_ , XK_1), MM1},
+        {XKeysymToKeycode(display_ , XK_2), MM1},
+        {XKeysymToKeycode(display_ , XK_3), MM1},
+        {XKeysymToKeycode(display_ , XK_4), MM1},
+        {XKeysymToKeycode(display_ , XK_5), MM1},
+        {XKeysymToKeycode(display_ , XK_6), MM1},
+        {XKeysymToKeycode(display_ , XK_7), MM1},
+        {XKeysymToKeycode(display_ , XK_8), MM1},
+        {XKeysymToKeycode(display_ , XK_9), MM1},
+        {XKeysymToKeycode(display_ , XK_0), MM2},
+        {XKeysymToKeycode(display_ , XK_1), MM2},
+        {XKeysymToKeycode(display_ , XK_2), MM2},
+        {XKeysymToKeycode(display_ , XK_3), MM2},
+        {XKeysymToKeycode(display_ , XK_4), MM2},
+        {XKeysymToKeycode(display_ , XK_5), MM2},
+        {XKeysymToKeycode(display_ , XK_6), MM2},
+        {XKeysymToKeycode(display_ , XK_7), MM2},
+        {XKeysymToKeycode(display_ , XK_8), MM2},
+        {XKeysymToKeycode(display_ , XK_9), MM2},
     };
 
     for(int i=0; i<(sizeof(keycodes_and_mods))/sizeof(keycodes_and_mods[0]); i++){
@@ -58,12 +59,33 @@ void grab_all_keys(Display* display_, Window w){
 }
 
 //all actions to take TODO move to dif file
-//void swap_workspace(int cur_workspace_index, int swap_to_idx, struct WorkSpace *workspaces){
+void swap_workspace(Display* display, int *cur_workspace_index, int swap_to_idx, struct WorkSpace *workspaces){
    //assert(swap_to_idx >= 0 && swap_to_idx < 10);
-//}
+
+    //closes cur ws
+    XUnmapWindow(display, workspaces[*cur_workspace_index].root);
+    
+    //opens new ws
+    XMapWindow(display, (workspaces[swap_to_idx].root));
+    *cur_workspace_index = swap_to_idx;
+    //update focus
+    
+    if(workspaces[swap_to_idx].logic_master->cur_focus == NULL){
+        //no windows just set 
+        XSetInputFocus(display, workspaces[swap_to_idx].root, RevertToNone, CurrentTime);
+    }else{
+        //this looks soo bad
+        XSetInputFocus(display,workspaces[swap_to_idx].logic_master->cur_focus->window_frame->w, RevertToNone, CurrentTime);
+
+    }
+}
 void move_window_to_workspace(){}
 
-void close_cur_window(){}
+void close_cur_window(Display* display, Window w){
+    printf("window to delete: %d", w);
+    XKillClient(display, w);
+}
+
 
 void open_app_launcher(){
     pid_t pid = fork();
@@ -88,11 +110,13 @@ void open_terminal(){
 }
 
 //TODO update function sig to get all data
-void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkSpace workspace){
+void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkSpace *workspaces, int* cur_focus_idx){
+    struct WorkSpace workspace = workspaces[*cur_focus_idx];
     //rmv window
     if((event.state & MM2) && (event.keycode == XKeysymToKeycode(display, XK_Q))){
-        exit(1);
-        close_cur_window();
+        if(workspace.logic_master->cur_focus != NULL){
+            close_cur_window(display, workspace.logic_master->cur_focus->window_frame->w);
+        }
         return;
     }
     
@@ -106,13 +130,14 @@ void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkS
         open_terminal();
         return;
     }
-    
+    //for some reason they are not inorder so we cant just add stuff to KP_0
+    int keycodes[10] = {XK_0, XK_1, XK_2, XK_3, XK_4, XK_5, XK_6, XK_7, XK_8, XK_9};
     //workspace operations 
     for(int i=0; i<10; i++){
-        int key_code =  XKeysymToKeycode(display, XK_KP_0 + i);
+        int key_code =  XKeysymToKeycode(display, keycodes[i]);
         if(event.keycode == key_code){
             if(event.state & MM1){
-                //swap_workspace();
+                swap_workspace(display, cur_focus_idx,  i, workspaces);
             }
             if(event.state & MM2) {
                 move_window_to_workspace();

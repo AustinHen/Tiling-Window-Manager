@@ -21,7 +21,7 @@ void mgr_event_loop(Display* display, Window root){
     //TODO sets error handler
     XSetErrorHandler(NULL);
     //sets up WorkSpaces 
-    const int NUM_WORKSPACES = 1;
+    const int NUM_WORKSPACES = 10;
     assert(NUM_WORKSPACES > 0 && NUM_WORKSPACES <= 10);
 
     struct WorkSpace WorkSpaces[NUM_WORKSPACES];
@@ -89,7 +89,7 @@ void mgr_event_loop(Display* display, Window root){
 
             case KeyPress:
                 //TODO
-                handleKeyPress(display, root, curEvent.xkey, WorkSpaces[cur_workspace_index]);
+                handleKeyPress(display, root, curEvent.xkey, &WorkSpaces, &cur_workspace_index);
                 break;
                 
             case KeyRelease:
@@ -145,6 +145,7 @@ void handleUnmapNotify(Display* display, struct WorkSpace* workspaces, int num_w
     free(to_remove_wf);
 
     if(workspaces[i].logic_master->root == NULL){
+        workspaces[i].logic_master->cur_focus = NULL;
         XSetInputFocus(display, workspaces[i].root, RevertToNone, CurrentTime);
         //open_terminal();        
         return;
@@ -154,7 +155,7 @@ void handleUnmapNotify(Display* display, struct WorkSpace* workspaces, int num_w
     update_all_children_frames(workspaces[i].logic_master->root, display);
     
     //get new focus 
-    if(workspaces[i].logic_master->cur_focus == NULL || workspaces[i].logic_master->cur_focus == to_remove_la){
+    if(workspaces[i].logic_master->cur_focus == to_remove_la){
         printf("failed");
         workspaces[i].logic_master->cur_focus = NULL;
         update_focus(0, 0, display, &workspaces[i]);

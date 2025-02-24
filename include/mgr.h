@@ -53,7 +53,7 @@ struct LogicAgent* find_windows_la(struct LogicAgent* root, Window to_find);
 
 //mgr.c
 int init_mgr(Display** display, Window* root);
-void mgr_event_loop();
+void mgr_event_loop(Display* display, Window root);
 void mgr_error_handler();
 void handleConfigureRequest(Display* display, Window root, XConfigureRequestEvent event);
 void handleMapRequest(Display* display, struct WorkSpace* workspace, XMapRequestEvent event);
@@ -71,7 +71,6 @@ void update_focus(int split_dir, int dir, Display* display_, struct WorkSpace* w
 //keybs
 void grab_all_keys(Display* display_, Window w);
 void open_terminal();
-void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkSpace ws);
-
+void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkSpace *workspaces, int* cur_focus_idx);
 //tests
 void logic_test();
