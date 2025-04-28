@@ -1,9 +1,9 @@
 # What is a Tilling Window Manager?
-Window managers determine where applications appear on your screen. Window managers handle tasks like: moving your chrome tab from one side of a screen to another, minimizing applications, chose which application is in focus, showing your desktop, and more. Almost every computer has a window manager.
+Window managers determine where applications appear on your screen. Window managers handle tasks like: moving a window from one side of a screen to another, minimizing applications, chose which application is in focus, showing your desktop, and more. Almost every computer has a window manager.
 
-A tilling window manager forces all applications to exist on a grid (e.g. full screen, half screen, quarter screen...). Most of what you do is already on a grid: very few people use applications that are not in full or split screen. If your applications are not overlapping, you are in a grid format. By forcing windows onto a grid, you can vastly streamline keybindings and, in turn, productivity.
+A tilling window manager forces all applications to exist on a grid (e.g. full screen, half screen, quarter screen...). Most of what you do is already on a grid: very few people use applications that are not in full or split screen. If your applications are not overlapping, you are in a grid format. By forcing windows onto a grid, you can vastly improve keybindings and, in turn, increase productivity.
 
-Tiling Window Managers do not allow you to minimize applications rather, you send windows to a different workstation. You can view one workstation at a time and swap between them at will. View the provided demo for a better understanding of workstations.
+Tiling Window Managers do not allow you to minimize applications rather, you send windows to a different workstation. You can view one workstation at a time and swap between them. View the provided demo for a better understanding of workstations.
 # Demo
 SOON TO BE ADDED 
 # Key Bindings
@@ -11,7 +11,7 @@ SOON TO BE ADDED
 
 <kbd>Mod</kbd> +<kbd>Enter</kbd> | open new terminal
 
-<kbd>Mod</kbd> +<kbd>Shift</kbd>+<kbd>q</kbd> | close current window
+<kbd>Mod</kbd> + <kbd>q</kbd> | close current window
 
 <kbd>Mod</kbd> +<kbd>0</kbd> ... <kbd>Mod</kbd>+<kbd>9</kbd> | swap to workstation 0-9 respectively 
 
@@ -23,7 +23,7 @@ SOON TO BE ADDED
 
 <kbd>Mod</kbd> + <kbd>k</kbd> | change focus one window down
 
-<kbd>Mod</kbd> + <kbd>;</kbd> | change focus one window to the right
+<kbd>Mod</kbd> + <kbd>l</kbd> | change focus one window to the right
 
 <kbd>Mod</kbd> + <kbd>h</kbd>+<kbd>shift</kbd> | swap cur window with one window to the left
 
@@ -31,7 +31,7 @@ SOON TO BE ADDED
 
 <kbd>Mod</kbd> + <kbd>k</kbd>+<kbd>shift</kbd> | swap cur window with one window down 
 
-<kbd>Mod</kbd> + <kbd>;</kbd>+<kbd>shift</kbd> | swap cur window with one window to the right
+<kbd>Mod</kbd> + <kbd>l</kbd>+<kbd>shift</kbd> | swap cur window with one window to the right
 
 # Running
 Just calling ./twm will not work. There can only be one window manager running at a time and you likely already have one going. You, in turn, have two options: use a virtual machine (recommended) or set this as your current window manager.
