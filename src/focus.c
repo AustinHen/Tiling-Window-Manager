@@ -7,7 +7,6 @@
 
 void update_focus(int split_dir, int dir, Display* display_, struct WorkSpace* workspace){
     //call update then shift focus
-    printf("MEEEP: %d", workspace->logic_master->cur_focus);
     struct LogicAgent* next_focus = get_focus_frame(split_dir, dir, workspace->logic_master->cur_focus, workspace->logic_master);
     if(next_focus == NULL){
         //needs to have some focus
@@ -19,7 +18,6 @@ void update_focus(int split_dir, int dir, Display* display_, struct WorkSpace* w
     XSetInputFocus(display_, next_focus->window_frame->w, RevertToNone, CurrentTime);
 }
 
-//LOGIC
 //dir -> eg left or right | up or down
 struct LogicAgent* get_focus_frame(int split_dir, int dir, struct LogicAgent* cur_focus, struct LogicMaster* ws){
     if(cur_focus == NULL){

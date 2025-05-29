@@ -42,3 +42,8 @@ I advise getting Xephyr: it allows you to run a second window manager in a toy d
 #### Swap Out Your Window Manager: 
 If you want to use this as your actual window manager I would advise looking into dex for Ubuntu / Arch. Essentially just bind ./twm to run on start up. Window managers are fairly integral pieces of software so, it is not a good idea to use one that you don't trust (e.g. mine).  
 
+
+# TODO
+- enable swapping 
+- enable moving window to new ws 
+- tests

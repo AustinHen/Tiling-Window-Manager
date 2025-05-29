@@ -50,7 +50,7 @@ void grab_all_keys(Display* display_, Window w){
     for(int i=0; i<(sizeof(keycodes_and_mods))/sizeof(keycodes_and_mods[0]); i++){
         XGrabKey(display_,
                 keycodes_and_mods[i][0], //keycode
-                keycodes_and_mods[1][1], //mod
+                keycodes_and_mods[i][1], //mod
                 w, //window
                 0, //dont notify children
                 GrabModeAsync,
@@ -79,6 +79,32 @@ void swap_workspace(Display* display, int *cur_workspace_index, int swap_to_idx,
 
     }
 }
+
+//LOGIC
+void swap_windows(int split_dir, int dir, Display* display, struct WorkSpace* workspace){
+    struct LogicAgent* cur_focus = workspace->logic_master->cur_focus;
+    struct LogicAgent* to_swap = get_focus_frame(split_dir, dir, cur_focus, workspace->logic_master);
+    if(to_swap == NULL){
+        return; //should have something to swap with
+    }
+
+    // just make logic agents point to dif windows 
+    struct WindowFrame* to_swap_wf = to_swap->window_frame;
+    struct WindowFrame* cur_wf = cur_focus->window_frame;
+
+    to_swap->window_frame = cur_wf;
+    cur_focus->window_frame = to_swap_wf;
+    cur_wf->la = to_swap; 
+    to_swap_wf->la = cur_focus; 
+
+    //update everything cuz im lazy
+    update_all_children_frames(workspace->logic_master->root, display);
+
+    //update the logic focus to stay the same
+    workspace->logic_master->cur_focus = to_swap;
+}
+
+
 void move_window_to_workspace(){}
 
 void close_cur_window(Display* display, Window w){
@@ -113,7 +139,10 @@ void open_terminal(){
 void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkSpace *workspaces, int* cur_focus_idx){
     struct WorkSpace workspace = workspaces[*cur_focus_idx];
     //rmv window
-    if((event.state & MM2) && (event.keycode == XKeysymToKeycode(display, XK_Q))){
+    if((event.state == MM1) && (event.keycode == XKeysymToKeycode(display, XK_Q))){
+        open_app_launcher();
+    }
+    if((event.state == MM2) && (event.keycode == XKeysymToKeycode(display, XK_Q))){
         if(workspace.logic_master->cur_focus != NULL){
             close_cur_window(display, workspace.logic_master->cur_focus->window_frame->w);
         }
@@ -121,12 +150,12 @@ void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkS
     }
     
     //opens file launcher
-    if((event.state & MM1) && (event.keycode == XKeysymToKeycode(display, XK_D))){
+    if((event.state == MM1) && (event.keycode == XKeysymToKeycode(display, XK_D))){
         open_app_launcher();
         return;
     }
     //open open_terminal
-    if((event.state & MM1) && (event.keycode == XKeysymToKeycode(display, XK_Return))){
+    if((event.state == MM1) && (event.keycode == XKeysymToKeycode(display, XK_Return))){
         open_terminal();
         return;
     }
@@ -136,10 +165,11 @@ void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkS
     for(int i=0; i<10; i++){
         int key_code =  XKeysymToKeycode(display, keycodes[i]);
         if(event.keycode == key_code){
-            if(event.state & MM1){
+            if(event.state == MM1){
                 swap_workspace(display, cur_focus_idx,  i, workspaces);
             }
-            if(event.state & MM2) {
+            if(event.state == MM2) {
+                printf("shift works ig");
                 move_window_to_workspace();
             }
             return;
@@ -147,7 +177,6 @@ void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkS
     }
 
     
-    //just arow keys lef
     //code , split_dir, dir 
     //split_dir  0 if split on x, 1 if split y 
     int keys_to_dir[4][3] = { 
@@ -159,10 +188,13 @@ void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkS
     for(int i=0; i<4; i++){
         if(event.keycode == keys_to_dir[i][0]){
             //correct keycode 
-            if(event.state & MM1){
+            if(event.state == MM1){
+                printf("swapping focus");
                 update_focus(keys_to_dir[i][1], keys_to_dir[i][2], display, &workspace);
             }
-            if(event.state & MM2){
+            if(event.state == MM2){
+                printf("gona swap windows");
+                swap_windows(keys_to_dir[i][1], keys_to_dir[i][2], display, &workspace);
             }
             return;
         }
