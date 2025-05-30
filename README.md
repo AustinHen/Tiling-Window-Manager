@@ -11,7 +11,7 @@ SOON TO BE ADDED
 
 <kbd>Mod</kbd> +<kbd>Enter</kbd> | open new terminal
 
-<kbd>Mod</kbd> + <kbd>q</kbd> | close current window
+<kbd>Mod</kbd> + <kbd>Shift</kbd> + <kbd>q</kbd> | close current window
 
 <kbd>Mod</kbd> +<kbd>0</kbd> ... <kbd>Mod</kbd>+<kbd>9</kbd> | swap to workstation 0-9 respectively 
 
