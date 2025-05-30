@@ -105,7 +105,30 @@ void swap_windows(int split_dir, int dir, Display* display, struct WorkSpace* wo
 }
 
 
-void move_window_to_workspace(){}
+void move_window_to_workspace(int cur_idx, int to_swap_idx, struct WorkSpace* workspaces, Display* display){
+    if(cur_idx == to_swap_idx){
+        return; //no reason to swap -> would just mess up split order
+    }
+    if(workspaces[cur_idx].logic_master->cur_focus == NULL){
+        return; //no window to swap 
+    }
+
+    struct LogicAgent* to_remove_la = workspaces[cur_idx].logic_master->cur_focus;
+    struct WindowFrame* to_remove_wf = to_remove_la->window_frame;
+    Window to_remove_frame = to_remove_wf->frame;
+
+    struct LogicAgent* cur_la = workspaces[to_swap_idx].logic_master->cur_focus;
+    struct WindowFrame* cur_wf = cur_la == NULL ? NULL : cur_la->window_frame; 
+
+    logic_remove_leaf(workspaces[cur_idx].logic_master, to_remove_la);
+    add_window_to_workspace(&workspaces[to_swap_idx], display, to_remove_wf->w, cur_wf);
+    
+    //XUnmapWindow(display, to_remove_frame);
+    //XDestroyWindow(display, to_remove_wf->frame); 
+
+    //remove WindowFrame
+ //   free(to_remove_wf);
+}
 
 void close_cur_window(Display* display, Window w){
     printf("window to delete: %d", w);
@@ -170,7 +193,7 @@ void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkS
             }
             if(event.state == MM2) {
                 printf("shift works ig");
-                move_window_to_workspace();
+                move_window_to_workspace(*cur_focus_idx, i, workspaces, display);
             }
             return;
         }

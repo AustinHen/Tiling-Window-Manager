@@ -120,6 +120,7 @@ void handleMapRequest(Display* display, struct WorkSpace* workspace, XMapRequest
     printf("here");
     struct WindowFrame* cur_focus = workspace->logic_master->cur_focus == NULL ? NULL : workspace->logic_master->cur_focus->window_frame;
     add_window_to_workspace(workspace, display, event.window, cur_focus);
+    XSetInputFocus(display, event.window, RevertToNone, CurrentTime);
 }
 
 void handleUnmapNotify(Display* display, struct WorkSpace* workspaces, int num_ws, XUnmapEvent event){

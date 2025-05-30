@@ -50,7 +50,6 @@ void add_window_to_workspace(struct WorkSpace* workspace, Display* display, Wind
     
     //update focus
     workspace->logic_master->cur_focus = to_add_frame->la;
-    XSetInputFocus(display, to_add, RevertToNone, CurrentTime);
 } 
 
 void frame_window(struct WindowFrame* frame, struct WorkSpace* workspace, Window to_add, Display* display){
