@@ -117,7 +117,7 @@ void handleConfigureRequest(Display* display, Window root, XConfigureRequestEven
 }
 
 void handleMapRequest(Display* display, struct WorkSpace* workspace, XMapRequestEvent event){
-    printf("here");
+    printf("doing a map request");
     struct WindowFrame* cur_focus = workspace->logic_master->cur_focus == NULL ? NULL : workspace->logic_master->cur_focus->window_frame;
     add_window_to_workspace(workspace, display, event.window, cur_focus);
     XSetInputFocus(display, event.window, RevertToNone, CurrentTime);

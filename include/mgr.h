@@ -71,6 +71,7 @@ void update_focus(int split_dir, int dir, Display* display_, struct WorkSpace* w
 //keybs
 void grab_all_keys(Display* display_, Window w);
 void open_terminal();
+void open_app_launcher();
 void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkSpace *workspaces, int* cur_focus_idx);
 //tests
 void logic_test();

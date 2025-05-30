@@ -117,17 +117,32 @@ void move_window_to_workspace(int cur_idx, int to_swap_idx, struct WorkSpace* wo
     struct WindowFrame* to_remove_wf = to_remove_la->window_frame;
     Window to_remove_frame = to_remove_wf->frame;
 
-    struct LogicAgent* cur_la = workspaces[to_swap_idx].logic_master->cur_focus;
-    struct WindowFrame* cur_wf = cur_la == NULL ? NULL : cur_la->window_frame; 
 
-    logic_remove_leaf(workspaces[cur_idx].logic_master, to_remove_la);
-    add_window_to_workspace(&workspaces[to_swap_idx], display, to_remove_wf->w, cur_wf);
-    
-    //XUnmapWindow(display, to_remove_frame);
-    //XDestroyWindow(display, to_remove_wf->frame); 
+    XReparentWindow( display, to_remove_frame, workspaces[to_swap_idx].root, 0, 0);  
 
-    //remove WindowFrame
- //   free(to_remove_wf);
+    //clean up cur worspace
+    struct LogicAgent* sibling = logic_remove_leaf(workspaces[cur_idx].logic_master, to_remove_la);
+    update_all_children_frames(sibling, display);
+    //update focus
+    if(sibling == NULL){
+        //needs to have some focus
+        XSetInputFocus(display, workspaces[cur_idx].root, RevertToNone, CurrentTime);
+        workspaces[cur_idx].logic_master->cur_focus = NULL;
+    }else{
+        workspaces[cur_idx].logic_master->cur_focus = sibling;
+        XSetInputFocus(display, sibling->window_frame->w, RevertToNone, CurrentTime);
+    }
+
+
+    //finish the swap
+    struct LogicAgent* next_la = logic_add(workspaces[to_swap_idx].logic_master, workspaces[to_swap_idx].logic_master->cur_focus);
+    to_remove_wf->la = next_la;
+    next_la->window_frame = to_remove_wf;
+    if(next_la->parent == NULL) {
+        update_all_children_frames(next_la, display);
+    }else{
+        update_all_children_frames(next_la->parent, display);
+    }
 }
 
 void close_cur_window(Display* display, Window w){

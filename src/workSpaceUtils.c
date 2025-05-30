@@ -75,11 +75,7 @@ void frame_window(struct WindowFrame* frame, struct WorkSpace* workspace, Window
             SubstructureRedirectMask | SubstructureNotifyMask);
   
     //puts the window in the frame 
-    XReparentWindow(
-            display,
-            to_add,
-            frame->frame,
-            0, 0);  
+    XReparentWindow( display, to_add, frame->frame, 0, 0);  
     XMapWindow(display, to_add); //NOTE this will not display until the parent is displayed
     XMapWindow(display, frame->frame); //NOTE this will not display until the parent is displayed
 
