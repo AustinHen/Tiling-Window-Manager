@@ -1,6 +1,9 @@
 #include <X11/Xlib.h>
 #include <stdlib.h>
- 
+
+#define PADDING 10
+
+
 struct LogicMaster{
     struct LogicAgent* root;
     int min_cord[2];
@@ -60,7 +63,8 @@ void handleMapRequest(Display* display, struct WorkSpace* workspace, XMapRequest
 void handleUnmapNotify(Display* display, struct WorkSpace* workspaces, int num_ws, XUnmapEvent event);
 
 //workSpaceUtils.c
-void init_workspace(struct WorkSpace* workspace, Display* display, Window root);
+void init_workspace(struct WorkSpace* workspace, int workspace_num, Display* display, Window root);
+void init_workspace_background(int workspace_num, Display* display, Window window, Window root);
 void add_window_to_workspace(struct WorkSpace* workspace, Display* display, Window to_add, struct WindowFrame* cur_frame);
 void update_frame(struct WindowFrame* to_update, Display* display_);
 void update_all_children_frames(struct LogicAgent* root, Display* display_);

@@ -18,18 +18,18 @@ int init_mgr(Display** display, Window* root){
 
 void mgr_event_loop(Display* display, Window root){
     XSelectInput(display, root, SubstructureRedirectMask | SubstructureNotifyMask); 
-    //TODO sets error handler
+    //TODO sets error handler 
     XSetErrorHandler(NULL);
     //sets up WorkSpaces 
     const int NUM_WORKSPACES = 10;
     assert(NUM_WORKSPACES > 0 && NUM_WORKSPACES <= 10);
 
     struct WorkSpace WorkSpaces[NUM_WORKSPACES];
-    int cur_workspace_index = 0; 
+    int cur_workspace_index = 1; 
 
     //inits all workspaces
     for(int i=0; i<NUM_WORKSPACES; i++){
-        init_workspace(&WorkSpaces[i], display, root);
+        init_workspace(&WorkSpaces[i], i, display, root);
     }
     
     //makes cur_workspace visible

@@ -157,7 +157,8 @@ void open_app_launcher(){
         printf("failed to launch fork issue");
     }
     if(pid == 0){
-        execl("/usr/bin/dmenu_run", "dmenu_run", (char*)NULL); 
+        execl("/usr/bin/rofi", "rofi", "-show", "drun", (char *)NULL);
+        //execl("/usr/bin/dmenu_run", "dmenu_run", (char*)NULL); 
         printf("failed to launch");
     }
 }
@@ -175,6 +176,7 @@ void open_terminal(){
 
 //TODO update function sig to get all data
 void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkSpace *workspaces, int* cur_focus_idx){
+    printf("state: %u, keycode: %u", event.state, event.keycode);
     struct WorkSpace workspace = workspaces[*cur_focus_idx];
     //rmv window
     if((event.state == MM1) && (event.keycode == XKeysymToKeycode(display, XK_Q))){
