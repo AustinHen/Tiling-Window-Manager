@@ -3,7 +3,6 @@ Window managers determine where applications appear on your screen. Window manag
 
 A tilling window manager forces all applications to exist on a grid (e.g. full screen, half screen, quarter screen...). Most of what you do is already on a grid: very few people use applications that are not in full or split screen. If your applications are not overlapping, you are in a grid format. By forcing windows onto a grid, you can vastly improve keybindings and, in turn, increase productivity.
 
-Tiling Window Managers do not allow you to minimize applications rather, you send windows to a different workstation. You can view one workstation at a time and swap between them. View the provided demo for a better understanding of workstations.
 # Demo
 SOON TO BE ADDED 
 # Key Bindings
@@ -42,8 +41,3 @@ I advise getting Xephyr: it allows you to run a second window manager in a toy d
 #### Swap Out Your Window Manager: 
 If you want to use this as your actual window manager I would advise looking into dex for Ubuntu / Arch. Essentially just bind ./twm to run on start up. Window managers are fairly integral pieces of software so, it is not a good idea to use one that you don't trust (e.g. mine).  
 
-
-# TODO
-- enable swapping 
-- enable moving window to new ws 
-- tests
