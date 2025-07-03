@@ -5,8 +5,11 @@
 #include <stdint.h>
 #include <X11/Xlib.h>
 #include <X11/Xutil.h> 
+
 #define STB_IMAGE_IMPLEMENTATION
 #include "../include/stb_image.h"
+#define STB_IMAGE_RESIZE_IMPLEMENTATION
+#include "../include/stb_image_resize2.h"
 
 #define DEFAULT_WINDOW_COLOR 0xF48FB1
 #define DEFAULT_FRAME_COLOR 0xFFFFFF
@@ -41,19 +44,19 @@ void init_workspace(struct WorkSpace* workspace, int workspace_num, Display* dis
             DEFAULT_WINDOW_COLOR
     );
 
-    XSelectInput( display, workspace->root, SubstructureRedirectMask | SubstructureNotifyMask);
+    XSelectInput(display, workspace->root, SubstructureRedirectMask | SubstructureNotifyMask);
 
-    init_workspace_background(workspace_num, display, workspace->root, root);
+    init_workspace_background(workspace_num, display, workspace->root, root, screenAttributes.width, screenAttributes.height);
 
 }
 
-void init_workspace_background(int workspace_num, Display* display, Window window, Window root){
-    return; //TODO finish function
+void init_workspace_background(int workspace_num, Display* display, Window window, Window root, int screen_width, int screen_height){
     int img_width, img_height, channels;
 
     if(workspace_num > 9 || workspace_num < 0){
         return; //just so no buffer overflow stuff 
     }
+
     char primary_file_name[16];
     sprintf(primary_file_name, "./images/%d.png", workspace_num); 
     
@@ -63,27 +66,50 @@ void init_workspace_background(int workspace_num, Display* display, Window windo
     if (!img_data) {
         printf("failed to load primary");
 
-        char* secondary_file_name = "./images/default.png";
+        char* secondary_file_name = "./images/default.jpg";
         img_data = stbi_load(secondary_file_name, &img_width, &img_height, &channels, 4); 
     }
 
     //failed both just return
     if(!img_data){
         printf("failed to load secondary");
+        exit(1);
         return;
     }
+
+    //resize the image
+    unsigned char* resized = malloc(screen_width * screen_height * 4);
+    if (!resized) {
+        fprintf(stderr, "Failed to allocate resized image buffer\n");
+        stbi_image_free(img_data);
+        return;
+    }
+    stbir_resize_uint8_srgb(
+        img_data, img_width, img_height, img_width * 4,
+        resized, screen_width, screen_height, screen_width * 4,
+        STBIR_RGBA
+    );
+
+    stbi_image_free(img_data);  // Done with original
+    img_data = resized;
+    img_width = screen_width; 
+    img_height=screen_height;
 
     //actually update the window
     int screen = DefaultScreen(display);
     uint32_t* image32 = malloc(img_width * img_height * sizeof(uint32_t));
     for (int i = 0; i < img_width * img_height; ++i) {
         unsigned char* p = &img_data[i * 4];
-        image32[i] = (p[0] << 16) | (p[1] << 8) | (p[2]); // RGB (no alpha)
+        image32[i] = (p[0] << 16) | (p[1] << 8) | (p[2]); 
     }
 
     // Create pixmap and draw image onto it
-    Pixmap pixmap = XCreatePixmap(display, root, img_width, img_height, DefaultDepth(display, screen));
-    GC gc = XCreateGC(display, pixmap, 0, NULL);
+    Pixmap pixmap = XCreatePixmap(display, root, img_width, img_height, DefaultDepth(display, screen)); GC gc = XCreateGC(display, pixmap, 0, NULL);
+
+    if (pixmap == None) {
+        fprintf(stderr, "Pixmap creation failed\n");
+        exit(1);
+    }
 
     XImage* ximage = XCreateImage(
             display,

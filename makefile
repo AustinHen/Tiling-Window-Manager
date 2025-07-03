@@ -4,7 +4,7 @@ LDFLAGS = -lX11 -lm
 TARGET = twm
 SRCS = src/main.c src/mgr.c src/workSpaceUtils.c src/tilingLogic.c src/keyHandle.c src/focus.c 
 OBJS = $(SRCS:.c=.o)
-HEADERS = include/mgr.h include/stb_image.h
+HEADERS = include/mgr.h include/stb_image.h include/stb_image_resize2.h
 
 all: $(TARGET)
 
