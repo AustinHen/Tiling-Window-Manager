@@ -4,7 +4,8 @@ Window managers determine where applications appear on your screen. Window manag
 A tilling window manager forces all applications to exist on a grid (e.g. full screen, half screen, quarter screen...). Most of what you do is already on a grid: very few people use applications that are not in full or split screen. If your applications are not overlapping, you are in a grid format. By forcing windows onto a grid, you can vastly improve keybindings and, in turn, increase productivity.
 
 # Demo
-SOON TO BE ADDED 
+![TWM_DEMO](https://github.com/user-attachments/assets/e4f691c4-dede-475c-a2a5-7557fad279e9)
+
 # Key Bindings
 <kbd>Mod</kbd> = <kbd>Windows</kbd> by default
 
