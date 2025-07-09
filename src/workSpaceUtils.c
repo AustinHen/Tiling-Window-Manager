@@ -19,11 +19,13 @@ void init_workspace(struct WorkSpace* workspace, int workspace_num, Display* dis
     XWindowAttributes screenAttributes; 
     XGetWindowAttributes(display, root, &screenAttributes);
     
-    const int padding = 10;
+    const int padding = 10;//padding is the stuff around the workable area
+    const int navbar_offset = 23; //pxls so the nav bar does not overlap wt the mgr
+
     struct LogicMaster* lm = (struct LogicMaster*) malloc(sizeof(struct LogicMaster));
     lm->root = NULL;
     lm->min_cord[0] = padding;
-    lm->min_cord[1] = padding;
+    lm->min_cord[1] = padding + navbar_offset;
     lm->max_cord[0] = screenAttributes.width - padding;
     lm->max_cord[1] = screenAttributes.height - padding;
     lm->cur_focus = NULL;
@@ -124,7 +126,6 @@ void init_workspace_background(int workspace_num, Display* display, Window windo
     XPutImage(display, pixmap, gc, ximage, 0, 0, 0, 0, img_width, img_height);
 
     XSetWindowBackgroundPixmap(display, window, pixmap);
-
 
     stbi_image_free(img_data);
     XDestroyImage(ximage); 

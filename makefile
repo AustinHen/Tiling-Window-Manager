@@ -1,8 +1,8 @@
 CC = gcc
 CFLAGS = -Wall -g
-LDFLAGS = -lX11 -lm
+LDFLAGS = -lX11 -lm -lXft
 TARGET = twm
-SRCS = src/main.c src/mgr.c src/workSpaceUtils.c src/tilingLogic.c src/keyHandle.c src/focus.c 
+SRCS = src/main.c src/mgr.c src/workSpaceUtils.c src/tilingLogic.c src/keyHandle.c src/focus.c src/navBar.c
 OBJS = $(SRCS:.c=.o)
 HEADERS = include/mgr.h include/stb_image.h include/stb_image_resize2.h
 

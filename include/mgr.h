@@ -35,6 +35,12 @@ struct WindowFrame{
     struct WindowFrame* next; //so it can be a linked list
 };
 
+struct NavBarState{
+    int ws_counts[10]; 
+    int cur_ws;
+    Window w;
+};
+
 
 void logic_test();
 
@@ -59,7 +65,7 @@ void mgr_event_loop(Display* display, Window root);
 void mgr_error_handler();
 void handleConfigureRequest(Display* display, Window root, XConfigureRequestEvent event);
 void handleMapRequest(Display* display, struct WorkSpace* workspace, XMapRequestEvent event);
-void handleUnmapNotify(Display* display, struct WorkSpace* workspaces, int num_ws, XUnmapEvent event);
+int handleUnmapNotify(Display* display, struct WorkSpace* workspaces, int num_ws, XUnmapEvent event);
 
 //workSpaceUtils.c
 void init_workspace(struct WorkSpace* workspace, int workspace_num, Display* display, Window root);
@@ -75,6 +81,9 @@ void update_focus(int split_dir, int dir, Display* display_, struct WorkSpace* w
 void grab_all_keys(Display* display_, Window w);
 void open_terminal();
 void open_app_launcher();
-void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkSpace *workspaces, int* cur_focus_idx);
-//tests
-void logic_test();
+void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkSpace *workspaces, int* cur_focus_idx, struct NavBarState* nav_state);
+
+//navbar 
+void create_nav_bar(struct NavBarState* state, Display* display, Window root);
+void update_nav_bar(struct NavBarState* state, Display* display);
+int draw_nav_str(const char* to_draw, int offset, Display* display, Window nav_win, GC gc, XFontStruct* font, int is_cur_win);

@@ -20,6 +20,7 @@ void mgr_event_loop(Display* display, Window root){
     XSelectInput(display, root, SubstructureRedirectMask | SubstructureNotifyMask); 
     //TODO sets error handler 
     XSetErrorHandler(NULL);
+    
     //sets up WorkSpaces 
     const int NUM_WORKSPACES = 10;
     assert(NUM_WORKSPACES > 0 && NUM_WORKSPACES <= 10);
@@ -36,6 +37,10 @@ void mgr_event_loop(Display* display, Window root){
     XMapWindow(display, (WorkSpaces[cur_workspace_index].root));
     //sets focus
     XSetInputFocus(display, WorkSpaces[cur_workspace_index].root, RevertToNone, CurrentTime);
+
+    //set up navbar
+    struct NavBarState nav_state = {0};
+    create_nav_bar(&nav_state, display, root);
 
     grab_all_keys(display, root);
     //event loop
@@ -59,6 +64,8 @@ void mgr_event_loop(Display* display, Window root){
             case MapRequest:
                 //request to make the window visible
                 handleMapRequest(display, &WorkSpaces[cur_workspace_index], curEvent.xmaprequest);
+                //updatecount -> never need to change stuff  
+                nav_state.ws_counts[cur_workspace_index] += 1;
                 break;
 
             case ReparentNotify:
@@ -74,7 +81,11 @@ void mgr_event_loop(Display* display, Window root){
                 break;
 
             case UnmapNotify:
-                handleUnmapNotify(display, &WorkSpaces, NUM_WORKSPACES, curEvent.xunmap);
+                int unmapws =  handleUnmapNotify(display, &WorkSpaces, NUM_WORKSPACES, curEvent.xunmap);
+                if (unmapws != -1){
+                    nav_state.ws_counts[unmapws] -= 1;
+                    update_nav_bar(&nav_state, display);
+                }
                 break;
 
             case ButtonPress:
@@ -89,7 +100,7 @@ void mgr_event_loop(Display* display, Window root){
 
             case KeyPress:
                 //TODO
-                handleKeyPress(display, root, curEvent.xkey, &WorkSpaces, &cur_workspace_index);
+                handleKeyPress(display, root, curEvent.xkey, &WorkSpaces, &cur_workspace_index, &nav_state);
                 break;
                 
             case KeyRelease:
@@ -123,7 +134,8 @@ void handleMapRequest(Display* display, struct WorkSpace* workspace, XMapRequest
     XSetInputFocus(display, event.window, RevertToNone, CurrentTime);
 }
 
-void handleUnmapNotify(Display* display, struct WorkSpace* workspaces, int num_ws, XUnmapEvent event){
+//returns ws# of removed window
+int handleUnmapNotify(Display* display, struct WorkSpace* workspaces, int num_ws, XUnmapEvent event){
     //1: find logic agent
     struct LogicAgent* to_remove_la = NULL; 
     int i =0;
@@ -133,7 +145,7 @@ void handleUnmapNotify(Display* display, struct WorkSpace* workspaces, int num_w
     }
     if(to_remove_la == NULL){
         //prob one of our frames -> do nothing
-        return;
+        return -1;
     }
     //2: unmap the frame and kill the frame
     struct WindowFrame* to_remove_wf = to_remove_la->window_frame;
@@ -149,7 +161,7 @@ void handleUnmapNotify(Display* display, struct WorkSpace* workspaces, int num_w
         workspaces[i].logic_master->cur_focus = NULL;
         XSetInputFocus(display, workspaces[i].root, RevertToNone, CurrentTime);
         //open_terminal();        
-        return;
+        return i;
     }
     //XReparentWindow(display, event.window, workspaces[i].root, 0, 0);
     //redraw all bs
@@ -160,8 +172,9 @@ void handleUnmapNotify(Display* display, struct WorkSpace* workspaces, int num_w
         printf("failed");
         workspaces[i].logic_master->cur_focus = NULL;
         update_focus(0, 0, display, &workspaces[i]);
-        return;
+        return i;
     }
     update_focus(0, 0, display, &workspaces[i]);
 
+    return i;
 }

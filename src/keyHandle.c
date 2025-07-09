@@ -105,12 +105,12 @@ void swap_windows(int split_dir, int dir, Display* display, struct WorkSpace* wo
 }
 
 
-void move_window_to_workspace(int cur_idx, int to_swap_idx, struct WorkSpace* workspaces, Display* display){
+int move_window_to_workspace(int cur_idx, int to_swap_idx, struct WorkSpace* workspaces, Display* display){
     if(cur_idx == to_swap_idx){
-        return; //no reason to swap -> would just mess up split order
+        return 0; //no reason to swap -> would just mess up split order
     }
     if(workspaces[cur_idx].logic_master->cur_focus == NULL){
-        return; //no window to swap 
+        return 0; //no window to swap 
     }
 
     struct LogicAgent* to_remove_la = workspaces[cur_idx].logic_master->cur_focus;
@@ -143,6 +143,8 @@ void move_window_to_workspace(int cur_idx, int to_swap_idx, struct WorkSpace* wo
     }else{
         update_all_children_frames(next_la->parent, display);
     }
+
+    return 1;
 }
 
 void close_cur_window(Display* display, Window w){
@@ -175,7 +177,7 @@ void open_terminal(){
 }
 
 //TODO update function sig to get all data
-void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkSpace *workspaces, int* cur_focus_idx){
+void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkSpace *workspaces, int* cur_focus_idx, struct NavBarState* nav_state){
     printf("state: %u, keycode: %u", event.state, event.keycode);
     struct WorkSpace workspace = workspaces[*cur_focus_idx];
     //rmv window
@@ -206,11 +208,18 @@ void handleKeyPress(Display* display, Window root, XKeyEvent event, struct WorkS
         int key_code =  XKeysymToKeycode(display, keycodes[i]);
         if(event.keycode == key_code){
             if(event.state == MM1){
+                nav_state->cur_ws = i;
+                update_nav_bar(nav_state, display);
                 swap_workspace(display, cur_focus_idx,  i, workspaces);
             }
             if(event.state == MM2) {
                 printf("shift works ig");
-                move_window_to_workspace(*cur_focus_idx, i, workspaces, display);
+
+                if(move_window_to_workspace(*cur_focus_idx, i, workspaces, display)){
+                    nav_state->ws_counts[i] += 1;
+                    nav_state->ws_counts[*cur_focus_idx] -= 1;
+                    update_nav_bar(nav_state, display);
+                }
             }
             return;
         }
