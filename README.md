@@ -2,7 +2,7 @@
 ![TWM_DEMO](https://github.com/user-attachments/assets/e4f691c4-dede-475c-a2a5-7557fad279e9)
 
 # What is a Tilling Window Manager?
-Window managers determine where applications appear on your screen. Window managers handle tasks like: moving a window from one side of a screen to another, minimizing applications, chose which application is in focus, showing your desktop, and more. Almost every computer has a window manager.
+Window managers determine where applications appear on your screen. Window managers handle tasks like: moving a window from one side of a screen to another, minimizing applications, choosing which application is in focus, showing your desktop, and more. Almost every computer has a window manager.
 
 A tilling window manager forces all applications to exist on a grid (e.g. full screen, half screen, quarter screen...). Most of what you do is already on a grid: very few people use applications that are not in full or split screen. If your applications are not overlapping, you are in a grid format. By forcing windows onto a grid, you can vastly improve keybindings and, in turn, increase productivity.
 
